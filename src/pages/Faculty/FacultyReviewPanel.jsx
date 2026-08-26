@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 import MilestoneTimeline from "../../components/MilestoneTimeline";
-import { CheckSquare, Search, Filter, Download, MessageSquare, CheckCircle, AlertTriangle, ShieldCheck, XCircle } from "lucide-react";
+import { Search, Filter, Download, CheckCircle, AlertTriangle, ShieldCheck, XCircle } from "lucide-react";
 import axios from "axios";
 
 export default function FacultyReviewPanel() {
@@ -20,7 +20,7 @@ export default function FacultyReviewPanel() {
   const fetchFacultyProjects = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/projects?role=FACULTY&userId=${user.id}`);
+      const res = await axios.get(`/api/projects?role=FACULTY&userId=${user.id}`);
       setProjects(res.data);
       if (res.data.length > 0 && !selectedProject) {
         setSelectedProject(res.data[0]);
@@ -34,7 +34,7 @@ export default function FacultyReviewPanel() {
 
   const fetchProjectReviews = async (projectId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/projects/${projectId}/reviews`);
+      const res = await axios.get(`/api/projects/${projectId}/reviews`);
       setReviewsLog(res.data);
     } catch (e) {
       console.error("Error fetching reviews log:", e);
@@ -59,7 +59,7 @@ export default function FacultyReviewPanel() {
 
     try {
       setSubmittingReview(true);
-      await axios.post("http://localhost:5000/api/reviews", {
+      await axios.post("/api/reviews", {
         projectId: selectedProject.id,
         facultyId: user.id,
         statusChange,
@@ -93,7 +93,6 @@ export default function FacultyReviewPanel() {
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <main style={{ flex: 1, padding: "28px 36px" }}>
-          {/* Header */}
           <div style={{ marginBottom: "24px" }}>
             <h2 style={{ margin: "0 0 4px 0", fontSize: "24px", fontWeight: 800, color: "#0F172A" }}>
               Faculty Proposal Review &amp; Evaluation Panel
@@ -103,7 +102,6 @@ export default function FacultyReviewPanel() {
             </p>
           </div>
 
-          {/* Search & Filter Controls */}
           <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
             <div style={{ flex: 1, position: "relative" }}>
               <Search size={18} color="#94A3B8" style={{ position: "absolute", left: "12px", top: "12px" }} />
@@ -145,9 +143,7 @@ export default function FacultyReviewPanel() {
             </div>
           </div>
 
-          {/* Layout Split */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "24px" }}>
-            {/* List */}
             <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "20px" }}>
               <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 700, color: "#0F172A" }}>
                 Pending Proposals ({filteredProjects.length})
@@ -188,7 +184,6 @@ export default function FacultyReviewPanel() {
               )}
             </div>
 
-            {/* Evaluation Details & Action Form */}
             <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "24px" }}>
               {selectedProject ? (
                 <div>
@@ -216,7 +211,7 @@ export default function FacultyReviewPanel() {
                       {selectedProject.abstract_text}
                     </p>
                     <a
-                      href={`http://localhost:5000${selectedProject.file_url || "/uploads/default_abstract.pdf"}`}
+                      href={selectedProject.file_url || "/uploads/default_abstract.pdf"}
                       target="_blank"
                       rel="noreferrer"
                       style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#2563EB", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
@@ -225,7 +220,6 @@ export default function FacultyReviewPanel() {
                     </a>
                   </div>
 
-                  {/* Feedback Form */}
                   <div style={{ marginBottom: "24px" }}>
                     <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#0F172A", marginBottom: "8px" }}>
                       Input Constructive Evaluation Feedback
@@ -247,7 +241,6 @@ export default function FacultyReviewPanel() {
                     />
                   </div>
 
-                  {/* Action Buttons */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "24px" }}>
                     <button
                       onClick={() => handleReviewAction("APPROVED")}
@@ -334,7 +327,6 @@ export default function FacultyReviewPanel() {
                     </button>
                   </div>
 
-                  {/* Previous Reviews Log */}
                   {reviewsLog.length > 0 && (
                     <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: "16px" }}>
                       <h4 style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "#334155" }}>

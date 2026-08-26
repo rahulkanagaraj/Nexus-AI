@@ -20,7 +20,7 @@ export default function FacultyReviewPanel() {
   const fetchFacultyProjects = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/projects?role=FACULTY&userId=${user.id}`);
+      const res = await axios.get(`/api/projects?role=FACULTY&userId=${user.id}`);
       setProjects(res.data);
       if (res.data.length > 0 && !selectedProject) {
         setSelectedProject(res.data[0]);
@@ -34,7 +34,7 @@ export default function FacultyReviewPanel() {
 
   const fetchProjectReviews = async (projectId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/projects/${projectId}/reviews`);
+      const res = await axios.get(`/api/projects/${projectId}/reviews`);
       setReviewsLog(res.data);
     } catch (e) {
       console.error("Error fetching reviews log:", e);
@@ -59,7 +59,7 @@ export default function FacultyReviewPanel() {
 
     try {
       setSubmittingReview(true);
-      await axios.post("http://localhost:5000/api/reviews", {
+      await axios.post("/api/reviews", {
         projectId: selectedProject.id,
         facultyId: user.id,
         statusChange,
@@ -211,7 +211,7 @@ export default function FacultyReviewPanel() {
                       {selectedProject.abstract_text}
                     </p>
                     <a
-                      href={`http://localhost:5000${selectedProject.file_url || "/uploads/default_abstract.pdf"}`}
+                      href={selectedProject.file_url || "/uploads/default_abstract.pdf"}
                       target="_blank"
                       rel="noreferrer"
                       style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#2563EB", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}

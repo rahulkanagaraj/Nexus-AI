@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       if (isSignUp) {
         // Sign Up Mode
-        const response = await axios.post("http://localhost:5000/api/auth/register", {
+        const response = await axios.post("/api/auth/register", {
           fullName,
           email,
           password,
@@ -43,7 +43,7 @@ export default function LoginPage() {
         }
       } else {
         // Sign In Mode
-        const response = await axios.post("http://localhost:5000/api/auth/login", {
+        const response = await axios.post("/api/auth/login", {
           email,
           password,
           role,

@@ -14,7 +14,7 @@ export default function IpFilingTracker() {
   const fetchIpFilings = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/ip-filings");
+      const res = await axios.get("/api/ip-filings");
       setIpFilings(res.data);
     } catch (e) {
       console.error("Error fetching IP filings:", e);
@@ -30,7 +30,7 @@ export default function IpFilingTracker() {
   const handleUpdateIp = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/ip-filings/${editingFiling.id}`, editingFiling);
+      await axios.put(`/api/ip-filings/${editingFiling.id}`, editingFiling);
       setEditingFiling(null);
       fetchIpFilings();
     } catch (err) {

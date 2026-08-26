@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import { ShieldCheck, Plus, Award, FileText, Calendar, Edit3, CheckCircle } from "lucide-react";
+import { ShieldCheck, Edit3 } from "lucide-react";
 import axios from "axios";
 
 export default function IpFilingTracker() {
@@ -14,7 +14,7 @@ export default function IpFilingTracker() {
   const fetchIpFilings = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/ip-filings");
+      const res = await axios.get("/api/ip-filings");
       setIpFilings(res.data);
     } catch (e) {
       console.error("Error fetching IP filings:", e);
@@ -30,7 +30,7 @@ export default function IpFilingTracker() {
   const handleUpdateIp = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/ip-filings/${editingFiling.id}`, editingFiling);
+      await axios.put(`/api/ip-filings/${editingFiling.id}`, editingFiling);
       setEditingFiling(null);
       fetchIpFilings();
     } catch (err) {
@@ -69,7 +69,6 @@ export default function IpFilingTracker() {
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <main style={{ flex: 1, padding: "28px 36px" }}>
-          {/* Header */}
           <div style={{ marginBottom: "28px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
               <ShieldCheck size={28} color="#2563EB" />
@@ -82,7 +81,6 @@ export default function IpFilingTracker() {
             </p>
           </div>
 
-          {/* Metric Summary */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "28px" }}>
             <div style={{ backgroundColor: "#FFFFFF", padding: "18px", borderRadius: "12px", border: "1px solid #E2E8F0" }}>
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Total IP Filings</div>
@@ -108,7 +106,6 @@ export default function IpFilingTracker() {
             </div>
           </div>
 
-          {/* Filings Table */}
           <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "20px" }}>
             <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 700, color: "#0F172A" }}>
               Institutional IP Record Catalog
@@ -177,7 +174,6 @@ export default function IpFilingTracker() {
         </main>
       </div>
 
-      {/* Edit IP Filing Modal */}
       {editingFiling && (
         <div
           style={{

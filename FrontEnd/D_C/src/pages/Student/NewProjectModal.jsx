@@ -30,7 +30,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
         formData.append("proposalFile", file);
       }
 
-      await axios.post("http://localhost:5000/api/projects", formData, {
+      await axios.post("/api/projects", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

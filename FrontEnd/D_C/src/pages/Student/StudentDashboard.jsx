@@ -17,7 +17,7 @@ export default function StudentDashboard() {
   const fetchStudentProjects = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/projects?role=STUDENT&userId=${user.id}`);
+      const res = await axios.get(`/api/projects?role=STUDENT&userId=${user.id}`);
       setProjects(res.data);
       if (res.data.length > 0 && !selectedProject) {
         setSelectedProject(res.data[0]);
@@ -198,7 +198,7 @@ export default function StudentDashboard() {
                         </span>
                       </div>
                       <a
-                        href={`http://localhost:5000${selectedProject.file_url || "/uploads/default_abstract.pdf"}`}
+                        href={selectedProject.file_url || "/uploads/default_abstract.pdf"}
                         target="_blank"
                         rel="noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: "4px", color: "#2563EB", fontSize: "12px", fontWeight: 600, textDecoration: "none" }}
