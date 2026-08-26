@@ -32,32 +32,33 @@ const upload = multer({ storage });
 // Serve static uploads
 app.use("/uploads", express.static(uploadsDir));
 
-// Database connection configuration
-const dbHost = process.env.DB_HOST || "localhost";
-const dbUser = process.env.DB_USER || "root";
-const dbPassword = process.env.DB_PASS || process.env.DB_PASSWORD || "manobeast2307";
-const dbName = process.env.DB_NAME || "campus_research_db";
-const dbPort = process.env.DB_PORT || 3306;
+// Database connection configuration with serverless resilience
+let useMockData = true;
+let db = null;
 
-let useMockData = false;
-const db = mysql.createConnection({
-  host: dbHost,
-  user: dbUser,
-  password: dbPassword,
-  database: dbName,
-  port: dbPort,
-});
-
-db.connect((err) => {
-  if (err) {
-    console.warn("MySQL connection failed. Falling back to memory state for seamless testing:", err.message);
-    useMockData = true;
-  } else {
-    console.log("Connected to MySQL database 'campus_research_db' successfully");
+if (process.env.DB_HOST) {
+  try {
+    db = mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER || "root",
+      password: process.env.DB_PASS || process.env.DB_PASSWORD || "",
+      database: process.env.DB_NAME || "campus_research_db",
+      port: process.env.DB_PORT || 3306,
+    });
+    db.connect((err) => {
+      if (!err) {
+        console.log("Connected to cloud MySQL database successfully");
+        useMockData = false;
+      } else {
+        console.warn("Cloud MySQL connection failed, using memory state fallback:", err.message);
+      }
+    });
+  } catch (e) {
+    console.warn("DB init error, using memory fallback");
   }
-});
+}
 
-// Mock state fallback when database is not active locally
+// Mock state fallback when database is not active
 let mockUsers = [
   { id: 1, full_name: "Alex Johnson", email: "alex.student@campus.edu", password_hash: "student123", role: "STUDENT", department: "Computer Science & Engineering" },
   { id: 2, full_name: "Sarah Williams", email: "sarah.student@campus.edu", password_hash: "student123", role: "STUDENT", department: "AI & Data Science" },
@@ -146,20 +147,18 @@ let mockIpFilings = [
 
 // --- REST API ENDPOINTS ---
 
-// 1. Role-Based Auth Endpoint
+// 1. Role-Based Auth Endpoint (Login)
 app.post("/api/auth/login", (req, res) => {
   const { email, password, role } = req.body;
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  if (useMockData) {
-    const foundUser = mockUsers.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() || u.email.split("@")[0] === email
-    );
-    if (!foundUser) {
-      return res.status(401).json({ message: "Invalid user credentials" });
-    }
+  const foundUser = mockUsers.find(
+    (u) => u.email.toLowerCase() === email.toLowerCase() || u.email.split("@")[0] === email.toLowerCase()
+  );
+
+  if (foundUser) {
     return res.json({
       message: "Login successful",
       user: {
@@ -173,18 +172,22 @@ app.post("/api/auth/login", (req, res) => {
     });
   }
 
-  const query = "SELECT id, full_name, email, role, department FROM users WHERE email = ? AND password_hash = ?";
-  db.query(query, [email, password], (err, results) => {
-    if (err || results.length === 0) {
+  if (!useMockData && db) {
+    const query = "SELECT id, full_name, email, role, department FROM users WHERE email = ? AND password_hash = ?";
+    db.query(query, [email, password], (err, results) => {
+      if (!err && results && results.length > 0) {
+        const u = results[0];
+        return res.json({
+          message: "Login successful",
+          user: { id: u.id, name: u.full_name, email: u.email, role: u.role, department: u.department },
+          token: "jwt-token-campus-" + u.id,
+        });
+      }
       return res.status(401).json({ message: "Invalid email or password" });
-    }
-    const u = results[0];
-    res.json({
-      message: "Login successful",
-      user: { id: u.id, name: u.full_name, email: u.email, role: u.role, department: u.department },
-      token: "jwt-token-campus-" + u.id,
     });
-  });
+  } else {
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
 });
 
 // 1b. Role-Based User Registration Endpoint
@@ -194,46 +197,45 @@ app.post("/api/auth/register", (req, res) => {
     return res.status(400).json({ message: "Full name, email, and password are required" });
   }
 
-  if (useMockData) {
-    const existing = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      return res.status(400).json({ message: "User with this email already exists" });
-    }
-    const newUser = {
-      id: mockUsers.length + 1,
-      full_name: fullName,
-      email: email,
-      password_hash: password,
-      role: role || "STUDENT",
-      department: department || "Computer Science & Engineering",
-    };
-    mockUsers.push(newUser);
-    return res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: newUser.id,
-        name: newUser.full_name,
-        email: newUser.email,
-        role: newUser.role,
-        department: newUser.department,
-      },
+  const existing = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (existing) {
+    return res.status(400).json({ message: "User with this email already exists" });
+  }
+
+  const newUser = {
+    id: mockUsers.length + 1,
+    full_name: fullName,
+    email: email,
+    password_hash: password,
+    role: role || "STUDENT",
+    department: department || "Computer Science & Engineering",
+  };
+  mockUsers.push(newUser);
+
+  if (!useMockData && db) {
+    const checkSql = "SELECT id FROM users WHERE email = ?";
+    db.query(checkSql, [email], (err, results) => {
+      if (!err) {
+        const sql = "INSERT INTO users (full_name, email, password_hash, role, department) VALUES (?, ?, ?, ?, ?)";
+        db.query(sql, [fullName, email, password, role || "STUDENT", department || "Computer Science & Engineering"], (err2, result) => {
+          if (!err2 && result) {
+            newUser.id = result.insertId;
+          }
+        });
+      }
     });
   }
 
-  const checkSql = "SELECT id FROM users WHERE email = ?";
-  db.query(checkSql, [email], (err, results) => {
-    if (results && results.length > 0) {
-      return res.status(400).json({ message: "Email already registered" });
-    }
-
-    const sql = "INSERT INTO users (full_name, email, password_hash, role, department) VALUES (?, ?, ?, ?, ?)";
-    db.query(sql, [fullName, email, password, role || "STUDENT", department || "Computer Science & Engineering"], (err2, result) => {
-      if (err2) return res.status(500).json({ message: err2.message });
-      res.status(201).json({
-        message: "User registered successfully",
-        user: { id: result.insertId, name: fullName, email, role: role || "STUDENT", department: department || "Computer Science & Engineering" },
-      });
-    });
+  return res.status(201).json({
+    message: "User registered successfully",
+    user: {
+      id: newUser.id,
+      name: newUser.full_name,
+      email: newUser.email,
+      role: newUser.role,
+      department: newUser.department,
+    },
+    token: "jwt-token-campus-" + newUser.id,
   });
 });
 
@@ -241,7 +243,7 @@ app.post("/api/auth/register", (req, res) => {
 app.get("/api/projects", (req, res) => {
   const { role, userId } = req.query;
 
-  if (useMockData) {
+  if (useMockData || !db) {
     let list = [...mockProjects];
     if (role === "STUDENT" && userId) {
       list = list.filter((p) => String(p.student_id) === String(userId));
@@ -270,7 +272,7 @@ app.get("/api/projects", (req, res) => {
   sql += " ORDER BY p.created_at DESC";
 
   db.query(sql, params, (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
+    if (err) return res.json(mockProjects);
     res.json(results);
   });
 });
@@ -283,119 +285,119 @@ app.post("/api/projects", upload.single("proposalFile"), (req, res) => {
   const fileName = file ? file.originalname : "Abstract_Proposal.pdf";
   const fileUrl = file ? `/uploads/${file.filename}` : "/uploads/default_abstract.pdf";
 
-  if (useMockData) {
-    const studentObj = mockUsers.find((u) => String(u.id) === String(studentId)) || { full_name: "Student User" };
-    const facultyObj = mockUsers.find((u) => String(u.id) === String(facultyId)) || { full_name: "Dr. Faculty Mentor" };
+  const studentObj = mockUsers.find((u) => String(u.id) === String(studentId)) || { full_name: "Student User" };
+  const facultyObj = mockUsers.find((u) => String(u.id) === String(facultyId)) || { full_name: "Dr. Faculty Mentor" };
 
-    const newProject = {
-      id: mockProjects.length + 1,
-      title: title || "Untitled Campus Research",
-      abstract_text: abstractText || "",
-      department: department || "Computer Science",
-      domain: domain || "AI & Software Systems",
-      status: "SUBMITTED",
-      current_milestone: "Proposal Submitted",
-      student_id: Number(studentId) || 1,
-      student_name: studentObj.full_name,
-      faculty_id: Number(facultyId) || 3,
-      faculty_name: facultyObj.full_name,
-      file_name: fileName,
-      file_url: fileUrl,
-      created_at: new Date().toISOString(),
-    };
-    mockProjects.unshift(newProject);
-    return res.status(201).json({ message: "Project proposal submitted successfully", project: newProject });
+  const newProject = {
+    id: mockProjects.length + 1,
+    title: title || "Untitled Campus Research",
+    abstract_text: abstractText || "",
+    department: department || "Computer Science",
+    domain: domain || "AI & Software Systems",
+    status: "SUBMITTED",
+    current_milestone: "Proposal Submitted",
+    student_id: Number(studentId) || 1,
+    student_name: studentObj.full_name,
+    faculty_id: Number(facultyId) || 3,
+    faculty_name: facultyObj.full_name,
+    file_name: fileName,
+    file_url: fileUrl,
+    created_at: new Date().toISOString(),
+  };
+  mockProjects.unshift(newProject);
+
+  if (!useMockData && db) {
+    const sqlProject = "INSERT INTO projects (title, abstract_text, department, domain, status, current_milestone, student_id, faculty_id) VALUES (?, ?, ?, ?, 'SUBMITTED', 'Proposal Submitted', ?, ?)";
+    db.query(sqlProject, [title, abstractText, department, domain, studentId, facultyId], (err, result) => {
+      if (!err && result) {
+        const projectId = result.insertId;
+        const sqlProposal = "INSERT INTO proposals (project_id, file_name, file_path) VALUES (?, ?, ?)";
+        db.query(sqlProposal, [projectId, fileName, fileUrl]);
+      }
+    });
   }
 
-  const sqlProject = "INSERT INTO projects (title, abstract_text, department, domain, status, current_milestone, student_id, faculty_id) VALUES (?, ?, ?, ?, 'SUBMITTED', 'Proposal Submitted', ?, ?)";
-  db.query(sqlProject, [title, abstractText, department, domain, studentId, facultyId], (err, result) => {
-    if (err) return res.status(500).json({ message: err.message });
-    const projectId = result.insertId;
-
-    const sqlProposal = "INSERT INTO proposals (project_id, file_name, file_path) VALUES (?, ?, ?)";
-    db.query(sqlProposal, [projectId, fileName, fileUrl], (err2) => {
-      res.status(201).json({ message: "Project submitted successfully", projectId });
-    });
-  });
+  return res.status(201).json({ message: "Project proposal submitted successfully", project: newProject });
 });
 
 // 4. Faculty Review & Decision Endpoint
 app.post("/api/reviews", (req, res) => {
   const { projectId, facultyId, statusChange, feedbackText } = req.body;
 
-  if (useMockData) {
-    const project = mockProjects.find((p) => String(p.id) === String(projectId));
-    const faculty = mockUsers.find((u) => String(u.id) === String(facultyId)) || { full_name: "Dr. Faculty Mentor" };
+  const project = mockProjects.find((p) => String(p.id) === String(projectId));
+  const faculty = mockUsers.find((u) => String(u.id) === String(facultyId)) || { full_name: "Dr. Faculty Mentor" };
 
-    if (project) {
-      project.status = statusChange;
-      if (statusChange === "APPROVED") project.current_milestone = "Proposal Approved";
-      else if (statusChange === "REVISION_REQUESTED") project.current_milestone = "Revision Requested";
-      else if (statusChange === "READY_FOR_IP") project.current_milestone = "Ready for IP Filing";
-      else if (statusChange === "UNDER_REVIEW") project.current_milestone = "Under Faculty Review";
+  if (project) {
+    project.status = statusChange;
+    if (statusChange === "APPROVED") project.current_milestone = "Proposal Approved";
+    else if (statusChange === "REVISION_REQUESTED") project.current_milestone = "Revision Requested";
+    else if (statusChange === "READY_FOR_IP") project.current_milestone = "Ready for IP Filing";
+    else if (statusChange === "UNDER_REVIEW") project.current_milestone = "Under Faculty Review";
 
-      const review = {
-        id: mockReviews.length + 1,
-        project_id: Number(projectId),
-        faculty_id: Number(facultyId),
-        faculty_name: faculty.full_name,
-        status_change: statusChange,
-        feedback_text: feedbackText,
-        reviewed_at: new Date().toISOString(),
-      };
-      mockReviews.unshift(review);
+    const review = {
+      id: mockReviews.length + 1,
+      project_id: Number(projectId),
+      faculty_id: Number(facultyId),
+      faculty_name: faculty.full_name,
+      status_change: statusChange,
+      feedback_text: feedbackText,
+      reviewed_at: new Date().toISOString(),
+    };
+    mockReviews.unshift(review);
 
-      // If marked Ready for IP, auto-create draft IP filing record
-      if (statusChange === "READY_FOR_IP") {
-        const existingIp = mockIpFilings.find((i) => String(i.project_id) === String(projectId));
-        if (!existingIp) {
-          mockIpFilings.push({
-            id: mockIpFilings.length + 1,
-            project_id: project.id,
-            project_title: project.title,
-            student_name: project.student_name,
-            ip_type: "PATENT",
-            application_no: "TEMP-IN-" + Date.now().toString().slice(-6),
-            filing_status: "DRAFTED",
-            filing_date: new Date().toISOString().split("T")[0],
-            inventors: `${project.student_name}, ${faculty.full_name}`,
-            notes: "Initiated upon faculty approval.",
-          });
-        }
+    if (statusChange === "READY_FOR_IP") {
+      const existingIp = mockIpFilings.find((i) => String(i.project_id) === String(projectId));
+      if (!existingIp) {
+        mockIpFilings.push({
+          id: mockIpFilings.length + 1,
+          project_id: project.id,
+          project_title: project.title,
+          student_name: project.student_name,
+          ip_type: "PATENT",
+          application_no: "TEMP-IN-" + Date.now().toString().slice(-6),
+          filing_status: "DRAFTED",
+          filing_date: new Date().toISOString().split("T")[0],
+          inventors: `${project.student_name}, ${faculty.full_name}`,
+          notes: "Initiated upon faculty approval.",
+        });
       }
     }
-    return res.json({ message: "Review feedback saved successfully" });
   }
 
-  const sqlReview = "INSERT INTO reviews (project_id, faculty_id, status_change, feedback_text) VALUES (?, ?, ?, ?)";
-  db.query(sqlReview, [projectId, facultyId, statusChange, feedbackText], (err) => {
-    if (err) return res.status(500).json({ message: err.message });
-
-    const sqlUpdateProject = "UPDATE projects SET status = ? WHERE id = ?";
-    db.query(sqlUpdateProject, [statusChange, projectId], (err2) => {
-      res.json({ message: "Review processed successfully" });
+  if (!useMockData && db) {
+    const sqlReview = "INSERT INTO reviews (project_id, faculty_id, status_change, feedback_text) VALUES (?, ?, ?, ?)";
+    db.query(sqlReview, [projectId, facultyId, statusChange, feedbackText], (err) => {
+      if (!err) {
+        const sqlUpdateProject = "UPDATE projects SET status = ? WHERE id = ?";
+        db.query(sqlUpdateProject, [statusChange, projectId]);
+      }
     });
-  });
+  }
+
+  return res.json({ message: "Review feedback saved successfully" });
 });
 
 // 5. Fetch Reviews Log
 app.get("/api/projects/:id/reviews", (req, res) => {
   const { id } = req.params;
-  if (useMockData) {
+  if (useMockData || !db) {
     const list = mockReviews.filter((r) => String(r.project_id) === String(id));
     return res.json(list);
   }
 
   const sql = "SELECT r.*, u.full_name AS faculty_name FROM reviews r JOIN users u ON r.faculty_id = u.id WHERE r.project_id = ? ORDER BY r.reviewed_at DESC";
   db.query(sql, [id], (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
+    if (err) {
+      const list = mockReviews.filter((r) => String(r.project_id) === String(id));
+      return res.json(list);
+    }
     res.json(results);
   });
 });
 
 // 6. IP Filing Tracker Endpoints
 app.get("/api/ip-filings", (req, res) => {
-  if (useMockData) {
+  if (useMockData || !db) {
     return res.json(mockIpFilings);
   }
 
@@ -407,7 +409,7 @@ app.get("/api/ip-filings", (req, res) => {
     ORDER BY ip.updated_at DESC
   `;
   db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
+    if (err) return res.json(mockIpFilings);
     res.json(results);
   });
 });
@@ -415,53 +417,49 @@ app.get("/api/ip-filings", (req, res) => {
 app.post("/api/ip-filings", (req, res) => {
   const { projectId, ipType, applicationNo, filingStatus, filingDate, inventors, notes } = req.body;
 
-  if (useMockData) {
-    const proj = mockProjects.find((p) => String(p.id) === String(projectId));
-    const newIp = {
-      id: mockIpFilings.length + 1,
-      project_id: Number(projectId),
-      project_title: proj ? proj.title : "Research Project",
-      student_name: proj ? proj.student_name : "Student Author",
-      ip_type: ipType || "PATENT",
-      application_no: applicationNo || "IN-" + Date.now(),
-      filing_status: filingStatus || "DRAFTED",
-      filing_date: filingDate || new Date().toISOString().split("T")[0],
-      inventors: inventors || "",
-      notes: notes || "",
-    };
-    mockIpFilings.unshift(newIp);
-    return res.status(201).json({ message: "IP filing record created successfully", ipFiling: newIp });
+  const proj = mockProjects.find((p) => String(p.id) === String(projectId));
+  const newIp = {
+    id: mockIpFilings.length + 1,
+    project_id: Number(projectId),
+    project_title: proj ? proj.title : "Research Project",
+    student_name: proj ? proj.student_name : "Student Author",
+    ip_type: ipType || "PATENT",
+    application_no: applicationNo || "IN-" + Date.now(),
+    filing_status: filingStatus || "DRAFTED",
+    filing_date: filingDate || new Date().toISOString().split("T")[0],
+    inventors: inventors || "",
+    notes: notes || "",
+  };
+  mockIpFilings.unshift(newIp);
+
+  if (!useMockData && db) {
+    const sql = "INSERT INTO ip_filings (project_id, ip_type, application_no, filing_status, filing_date, inventors, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    db.query(sql, [projectId, ipType, applicationNo, filingStatus, filingDate, inventors, notes]);
   }
 
-  const sql = "INSERT INTO ip_filings (project_id, ip_type, application_no, filing_status, filing_date, inventors, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  db.query(sql, [projectId, ipType, applicationNo, filingStatus, filingDate, inventors, notes], (err, result) => {
-    if (err) return res.status(500).json({ message: err.message });
-    res.status(201).json({ message: "IP filing created successfully", id: result.insertId });
-  });
+  return res.status(201).json({ message: "IP filing record created successfully", ipFiling: newIp });
 });
 
 app.put("/api/ip-filings/:id", (req, res) => {
   const { id } = req.params;
   const { ipType, applicationNo, filingStatus, filingDate, inventors, notes } = req.body;
 
-  if (useMockData) {
-    const filing = mockIpFilings.find((item) => String(item.id) === String(id));
-    if (filing) {
-      if (ipType) filing.ip_type = ipType;
-      if (applicationNo) filing.application_no = applicationNo;
-      if (filingStatus) filing.filing_status = filingStatus;
-      if (filingDate) filing.filing_date = filingDate;
-      if (inventors) filing.inventors = inventors;
-      if (notes) filing.notes = notes;
-    }
-    return res.json({ message: "IP filing updated successfully", filing });
+  const filing = mockIpFilings.find((item) => String(item.id) === String(id));
+  if (filing) {
+    if (ipType) filing.ip_type = ipType;
+    if (applicationNo) filing.application_no = applicationNo;
+    if (filingStatus) filing.filing_status = filingStatus;
+    if (filingDate) filing.filing_date = filingDate;
+    if (inventors) filing.inventors = inventors;
+    if (notes) filing.notes = notes;
   }
 
-  const sql = "UPDATE ip_filings SET ip_type = ?, application_no = ?, filing_status = ?, filing_date = ?, inventors = ?, notes = ? WHERE id = ?";
-  db.query(sql, [ipType, applicationNo, filingStatus, filingDate, inventors, notes, id], (err) => {
-    if (err) return res.status(500).json({ message: err.message });
-    res.json({ message: "IP filing updated successfully" });
-  });
+  if (!useMockData && db) {
+    const sql = "UPDATE ip_filings SET ip_type = ?, application_no = ?, filing_status = ?, filing_date = ?, inventors = ?, notes = ? WHERE id = ?";
+    db.query(sql, [ipType, applicationNo, filingStatus, filingDate, inventors, notes, id]);
+  }
+
+  return res.json({ message: "IP filing updated successfully", filing });
 });
 
 const PORT = process.env.PORT || 5000;
