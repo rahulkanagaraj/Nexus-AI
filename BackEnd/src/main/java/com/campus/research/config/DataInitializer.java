@@ -38,8 +38,13 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (userRepository.count() > 0) {
-            return; // Already initialized
+        // Ensure IP Cell officer exists even if DB was already seeded with older accounts
+        if (userRepository.findByEmailIgnoreCase("ipcell@campus.edu").isEmpty()) {
+            userRepository.save(new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", "admin123", User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now()));
+        }
+
+        if (userRepository.count() > 1) {
+            return; // Core users already initialized
         }
 
         System.out.println("Initializing InnoFlow Seed Data for Academic Research & IP Management...");
