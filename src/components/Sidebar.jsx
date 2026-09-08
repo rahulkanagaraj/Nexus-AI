@@ -41,21 +41,45 @@ export default function Sidebar() {
   return (
     <aside
       style={{
-        width: "240px",
+        width: "250px",
+        minWidth: "250px",
+        maxWidth: "250px",
+        flexShrink: 0,
+        position: "sticky",
+        top: "64px",
+        height: "calc(100vh - 64px)",
+        maxHeight: "calc(100vh - 64px)",
         backgroundColor: "#FFFFFF",
         borderRight: "1px solid #E2E8F0",
-        minHeight: "calc(100vh - 64px)",
         padding: "20px 0 16px 0",
         display: "flex",
         flexDirection: "column",
         boxSizing: "border-box",
+        zIndex: 90,
       }}
     >
-      <div style={{ padding: "0 18px 12px 18px", fontSize: "11px", fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+      <div
+        style={{
+          padding: "0 18px 12px 18px",
+          fontSize: "11px",
+          fontWeight: 700,
+          color: "#94A3B8",
+          textTransform: "uppercase",
+          letterSpacing: "0.5px",
+        }}
+      >
         {user.role} Navigation
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+          flex: 1,
+          overflowY: "auto",
+        }}
+      >
         {isStudent && (
           <>
             <NavLink to="/student/dashboard" style={linkStyle}>
@@ -110,7 +134,13 @@ export default function Sidebar() {
       </div>
 
       {/* Exit / Sign Out Button in Sidebar */}
-      <div style={{ marginTop: "auto", padding: "16px 14px 4px 14px", borderTop: "1px solid #E2E8F0" }}>
+      <div
+        style={{
+          marginTop: "auto",
+          padding: "16px 14px 4px 14px",
+          borderTop: "1px solid #E2E8F0",
+        }}
+      >
         <button
           onClick={handleExit}
           style={{

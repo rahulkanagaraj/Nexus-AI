@@ -13,21 +13,25 @@ export default function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 1000,
+        height: "64px",
         backgroundColor: "#0F172A",
         borderBottom: "1px solid #1E293B",
         boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.25)",
         fontFamily: "'Inter', sans-serif",
+        display: "flex",
+        alignItems: "center",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
-          maxWidth: "1440px",
-          margin: "0 auto",
-          padding: "12px 24px",
+          width: "100%",
+          padding: "0 28px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: "12px",
+          boxSizing: "border-box",
         }}
       >
         {/* InnoFlow Heading */}
@@ -43,8 +47,8 @@ export default function Navbar() {
         >
           <div
             style={{
-              width: "40px",
-              height: "40px",
+              width: "38px",
+              height: "38px",
               borderRadius: "10px",
               background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
               display: "flex",
@@ -53,11 +57,11 @@ export default function Navbar() {
               boxShadow: "0 0 15px rgba(37, 99, 235, 0.5)",
             }}
           >
-            <Layers size={22} color="#FFFFFF" />
+            <Layers size={20} color="#FFFFFF" />
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ fontSize: "19px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.5px" }}>
+              <span style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.5px" }}>
                 InnoFlow
               </span>
               <span
@@ -87,7 +91,7 @@ export default function Navbar() {
               display: "flex",
               alignItems: "center",
               gap: "10px",
-              padding: "5px 12px",
+              padding: "4px 12px",
               borderRadius: "20px",
               backgroundColor: "#1E293B",
               border: "1px solid #334155",
@@ -95,8 +99,8 @@ export default function Navbar() {
           >
             <div
               style={{
-                width: "30px",
-                height: "30px",
+                width: "28px",
+                height: "28px",
                 borderRadius: "50%",
                 backgroundColor:
                   user.role === "FACULTY"
@@ -108,7 +112,7 @@ export default function Navbar() {
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#FFFFFF",
-                fontSize: "13px",
+                fontSize: "12px",
                 fontWeight: 700,
               }}
             >

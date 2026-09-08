@@ -92,7 +92,7 @@ export default function FacultyReviewPanel() {
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <main style={{ flex: 1, padding: "28px 36px" }}>
+        <main style={{ flex: 1, padding: "28px 36px", minWidth: 0 }}>
           <div style={{ marginBottom: "24px" }}>
             <h2 style={{ margin: "0 0 4px 0", fontSize: "24px", fontWeight: 800, color: "#0F172A" }}>
               Faculty Proposal Review &amp; Evaluation Panel

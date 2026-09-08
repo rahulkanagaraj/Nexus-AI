@@ -142,7 +142,7 @@ export default function IpFilingTracker() {
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <main style={{ flex: 1, padding: "28px 36px", maxWidth: "1280px" }}>
+        <main style={{ flex: 1, padding: "28px 36px", maxWidth: "1280px", minWidth: 0 }}>
           {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", flexWrap: "wrap", gap: "16px" }}>
             <div>
