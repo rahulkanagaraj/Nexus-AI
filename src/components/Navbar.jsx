@@ -1,66 +1,11 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Layers,
-  GraduationCap,
-  Award,
-  FileCheck,
-  LogOut,
-  UserCheck,
-  Sparkles,
-  ShieldAlert
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Layers } from "lucide-react";
 
 export default function Navbar() {
-  const { user, login, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const handleQuickSwitch = (role) => {
-    if (role === "STUDENT") {
-      const studentUser = {
-        id: 1,
-        name: "Alex Johnson",
-        email: "alex.student@campus.edu",
-        role: "STUDENT",
-        department: "Computer Science & Engineering",
-      };
-      login(studentUser);
-      navigate("/student/dashboard");
-    } else if (role === "FACULTY") {
-      const facultyUser = {
-        id: 3,
-        name: "Dr. Robert Vance",
-        email: "robert.faculty@campus.edu",
-        role: "FACULTY",
-        department: "Computer Science & Engineering",
-      };
-      login(facultyUser);
-      navigate("/faculty/dashboard");
-    } else if (role === "IP_CELL") {
-      const ipUser = {
-        id: 5,
-        name: "Institutional IP Cell Officer",
-        email: "ipcell@campus.edu",
-        role: "IP_CELL",
-        department: "Institutional IP Cell & Tech Transfer",
-      };
-      login(ipUser);
-      navigate("/ip-tracker");
-    }
-  };
-
-  const navItems = [
-    { label: "Student Portal", path: "/student/dashboard", icon: GraduationCap, allowed: ["STUDENT", "ADMIN"] },
-    { label: "Faculty Review", path: "/faculty/dashboard", icon: FileCheck, allowed: ["FACULTY", "ADMIN"] },
-    { label: "IP Cell Tracker", path: "/ip-tracker", icon: Award, allowed: ["STUDENT", "FACULTY", "IP_CELL", "ADMIN"] },
-  ];
 
   return (
     <header
@@ -78,15 +23,14 @@ export default function Navbar() {
         style={{
           maxWidth: "1440px",
           margin: "0 auto",
-          padding: "10px 24px",
+          padding: "12px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          flexWrap: "wrap",
           gap: "12px",
         }}
       >
-        {/* Brand Logo & Name */}
+        {/* InnoFlow Heading */}
         <div
           onClick={() => navigate("/")}
           style={{
@@ -136,187 +80,50 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Navigation Tabs */}
+        {/* Fetched User Name & Avatar */}
         {user && (
-          <nav style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "7px",
-                    padding: "7px 13px",
-                    borderRadius: "8px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    backgroundColor: isActive ? "rgba(37, 99, 235, 0.2)" : "transparent",
-                    color: isActive ? "#60A5FA" : "#94A3B8",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) e.currentTarget.style.color = "#F8FAFC";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) e.currentTarget.style.color = "#94A3B8";
-                  }}
-                >
-                  <Icon size={16} />
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
-        )}
-
-        {/* Demo Quick Switcher & User Profile */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Quick Persona Switcher for Evaluation */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "4px",
+              gap: "10px",
+              padding: "5px 12px",
+              borderRadius: "20px",
               backgroundColor: "#1E293B",
-              padding: "3px 6px",
-              borderRadius: "8px",
               border: "1px solid #334155",
             }}
           >
-            <span style={{ fontSize: "11px", color: "#64748B", padding: "0 4px", fontWeight: 600 }}>Demo:</span>
-            <button
-              onClick={() => handleQuickSwitch("STUDENT")}
-              title="Switch to Student Alex Johnson"
+            <div
               style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                padding: "3px 7px",
-                borderRadius: "5px",
-                border: "none",
-                cursor: "pointer",
-                backgroundColor: user?.role === "STUDENT" ? "#2563EB" : "transparent",
-                color: user?.role === "STUDENT" ? "#FFFFFF" : "#94A3B8",
+                width: "30px",
+                height: "30px",
+                borderRadius: "50%",
+                backgroundColor:
+                  user.role === "FACULTY"
+                    ? "#059669"
+                    : user.role === "IP_CELL"
+                    ? "#7C3AED"
+                    : "#2563EB",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                fontSize: "13px",
+                fontWeight: 700,
               }}
             >
-              Student
-            </button>
-            <button
-              onClick={() => handleQuickSwitch("FACULTY")}
-              title="Switch to Mentor Dr. Robert Vance"
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                padding: "3px 7px",
-                borderRadius: "5px",
-                border: "none",
-                cursor: "pointer",
-                backgroundColor: user?.role === "FACULTY" ? "#059669" : "transparent",
-                color: user?.role === "FACULTY" ? "#FFFFFF" : "#94A3B8",
-              }}
-            >
-              Faculty
-            </button>
-            <button
-              onClick={() => handleQuickSwitch("IP_CELL")}
-              title="Switch to Institutional IP Cell Officer"
-              style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                padding: "3px 7px",
-                borderRadius: "5px",
-                border: "none",
-                cursor: "pointer",
-                backgroundColor: user?.role === "IP_CELL" ? "#7C3AED" : "transparent",
-                color: user?.role === "IP_CELL" ? "#FFFFFF" : "#94A3B8",
-              }}
-            >
-              IP Cell
-            </button>
-          </div>
-
-          {user && (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "4px 10px",
-                  borderRadius: "20px",
-                  backgroundColor: "#1E293B",
-                  border: "1px solid #334155",
-                }}
-              >
-                <div
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    borderRadius: "50%",
-                    backgroundColor:
-                      user.role === "FACULTY"
-                        ? "#059669"
-                        : user.role === "IP_CELL"
-                        ? "#7C3AED"
-                        : "#2563EB",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#FFFFFF",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                  }}
-                >
-                  {user.name ? user.name.charAt(0) : "U"}
-                </div>
-                <div>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#F8FAFC", lineHeight: 1.2 }}>
-                    {user.name}
-                  </div>
-                  <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1 }}>
-                    {user.role}
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                title="Sign Out"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  border: "1px solid #334155",
-                  backgroundColor: "transparent",
-                  color: "#94A3B8",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#1E293B";
-                  e.currentTarget.style.color = "#EF4444";
-                  e.currentTarget.style.borderColor = "#EF4444";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "#94A3B8";
-                  e.currentTarget.style.borderColor = "#334155";
-                }}
-              >
-                <LogOut size={14} />
-                <span>Exit</span>
-              </button>
+              {user.name ? user.name.charAt(0) : "U"}
             </div>
-          )}
-        </div>
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#F8FAFC", lineHeight: 1.2 }}>
+                {user.name}
+              </div>
+              <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1 }}>
+                {user.role}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
