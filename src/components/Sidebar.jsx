@@ -171,7 +171,7 @@ export default function Sidebar() {
           }}
         >
           <LogOut size={16} />
-          <span>Exit / Sign Out</span>
+          <span>Sign Out</span>
         </button>
       </div>
     </aside>

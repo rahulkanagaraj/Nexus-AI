@@ -11,7 +11,7 @@ public class IpFiling {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "project_id", nullable = false)
+    @Column(name = "project_id", nullable = true)
     private Long projectId;
 
     private String projectTitle;

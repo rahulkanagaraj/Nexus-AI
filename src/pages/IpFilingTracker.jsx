@@ -13,40 +13,155 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Plus
+  Plus,
+  Trash2,
+  X,
+  RefreshCw
 } from "lucide-react";
 import axios from "axios";
 
 export default function IpFilingTracker() {
   const { user } = useAuth();
   const [ipFilings, setIpFilings] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingFiling, setEditingFiling] = useState(null);
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("ALL");
   const [selectedStatus, setSelectedStatus] = useState("ALL");
+
+  const [newFiling, setNewFiling] = useState({
+    projectId: "",
+    projectTitle: "",
+    studentName: "",
+    ipType: "PATENT",
+    applicationNo: `IN-PAT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
+    filingStatus: "DRAFTED",
+    filingDate: new Date().toISOString().split("T")[0],
+    inventors: "",
+    notes: "",
+  });
 
   const fetchIpFilings = async () => {
     try {
       setLoading(true);
       const res = await axios.get("/api/ip-filings");
-      setIpFilings(res.data);
+      setIpFilings(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error("Error fetching IP filings:", e);
+      setIpFilings([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchProjects = async () => {
+    try {
+      const res = await axios.get("/api/projects");
+      setProjects(Array.isArray(res.data) ? res.data : []);
+    } catch (e) {
+      console.error("Error fetching proposals list:", e);
+      setProjects([]);
+    }
+  };
+
   useEffect(() => {
     fetchIpFilings();
+    fetchProjects();
   }, []);
+
+  const generateNewAppNo = (type) => {
+    const prefix =
+      type === "PATENT"
+        ? "IN-PAT"
+        : type === "COPYRIGHT"
+        ? "IN-CR"
+        : type === "TRADE_SECRET"
+        ? "IN-TS"
+        : "IN-DES";
+    return `${prefix}-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+  };
+
+  const handleSelectProposal = (projectIdStr) => {
+    if (!projectIdStr) {
+      setNewFiling((prev) => ({
+        ...prev,
+        projectId: "",
+        projectTitle: "",
+        studentName: "",
+        inventors: "",
+      }));
+      return;
+    }
+    const p = projects.find((proj) => String(proj.id) === String(projectIdStr));
+    if (p) {
+      const student = p.studentName || p.student_name || "Campus Researcher";
+      const mentor = p.facultyName || p.faculty_name || "";
+      const inventorsList = mentor ? `${student}, ${mentor}` : student;
+      setNewFiling((prev) => ({
+        ...prev,
+        projectId: p.id,
+        projectTitle: p.title,
+        studentName: student,
+        inventors: inventorsList,
+        notes: `Recorded for project #${p.id}: ${p.title}`,
+      }));
+    }
+  };
+
+  const handleCreateIp = async (e) => {
+    e.preventDefault();
+    if (!newFiling.projectTitle.trim()) {
+      alert("Please provide an invention or project title.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const payload = {
+        projectId: newFiling.projectId ? Number(newFiling.projectId) : null,
+        projectTitle: newFiling.projectTitle.trim(),
+        studentName: newFiling.studentName.trim() || user?.name || "Campus Researcher",
+        ipType: newFiling.ipType,
+        applicationNo: newFiling.applicationNo.trim(),
+        filingStatus: newFiling.filingStatus,
+        filingDate: newFiling.filingDate,
+        inventors: newFiling.inventors.trim(),
+        notes: newFiling.notes.trim(),
+      };
+
+      await axios.post("/api/ip-filings", payload);
+      setIsNewModalOpen(false);
+      setNewFiling({
+        projectId: "",
+        projectTitle: "",
+        studentName: "",
+        ipType: "PATENT",
+        applicationNo: generateNewAppNo("PATENT"),
+        filingStatus: "DRAFTED",
+        filingDate: new Date().toISOString().split("T")[0],
+        inventors: "",
+        notes: "",
+      });
+      fetchIpFilings();
+      alert("IP filing record created successfully!");
+    } catch (err) {
+      alert("Failed to create IP filing: " + (err.response?.data?.message || err.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleUpdateIp = async (e) => {
     e.preventDefault();
     try {
+      setSubmitting(true);
       const payload = {
-        projectId: editingFiling.projectId || editingFiling.project_id,
+        projectId: editingFiling.projectId || editingFiling.project_id || null,
+        projectTitle: editingFiling.projectTitle || editingFiling.project_title,
+        studentName: editingFiling.studentName || editingFiling.student_name,
         ipType: editingFiling.ipType || editingFiling.ip_type,
         applicationNo: editingFiling.applicationNo || editingFiling.application_no,
         filingStatus: editingFiling.filingStatus || editingFiling.filing_status,
@@ -58,8 +173,23 @@ export default function IpFilingTracker() {
       await axios.put(`/api/ip-filings/${editingFiling.id}`, payload);
       setEditingFiling(null);
       fetchIpFilings();
+      alert("IP filing updated successfully!");
     } catch (err) {
       alert("Failed to update IP filing record: " + (err.response?.data?.message || err.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteIp = async (id, title) => {
+    if (!window.confirm(`Are you sure you want to remove the IP filing record for:\n"${title}"?`)) {
+      return;
+    }
+    try {
+      await axios.delete(`/api/ip-filings/${id}`);
+      fetchIpFilings();
+    } catch (err) {
+      alert("Failed to delete record: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -82,6 +212,7 @@ export default function IpFilingTracker() {
           borderRadius: "12px",
           fontSize: "12px",
           fontWeight: 700,
+          display: "inline-block",
         }}
       >
         {b.text}
@@ -89,7 +220,9 @@ export default function IpFilingTracker() {
     );
   };
 
-  const filteredFilings = ipFilings.filter((i) => {
+  const safeFilings = Array.isArray(ipFilings) ? ipFilings : [];
+
+  const filteredFilings = safeFilings.filter((i) => {
     const title = (i.projectTitle || i.project_title || "").toLowerCase();
     const student = (i.studentName || i.student_name || "").toLowerCase();
     const appNo = (i.applicationNo || i.application_no || "").toLowerCase();
@@ -110,7 +243,17 @@ export default function IpFilingTracker() {
 
   const exportCsv = () => {
     if (filteredFilings.length === 0) return;
-    const headers = ["ID", "Project Title", "Student Author", "IP Type", "Application No", "Filing Status", "Filing Date", "Inventors", "Notes"];
+    const headers = [
+      "ID",
+      "Project Title",
+      "Lead Researcher",
+      "IP Type",
+      "Application No",
+      "Filing Status",
+      "Filing Date",
+      "Inventors",
+      "Notes",
+    ];
     const rows = filteredFilings.map((f) => [
       f.id,
       `"${(f.projectTitle || f.project_title || "").replace(/"/g, '""')}"`,
@@ -133,18 +276,37 @@ export default function IpFilingTracker() {
     document.body.removeChild(link);
   };
 
-  const draftedCount = ipFilings.filter((i) => (i.filingStatus || i.filing_status) === "DRAFTED").length;
-  const filedCount = ipFilings.filter((i) => ["FILED", "UNDER_EXAMINATION"].includes(i.filingStatus || i.filing_status)).length;
-  const grantedCount = ipFilings.filter((i) => (i.filingStatus || i.filing_status) === "GRANTED").length;
+  const draftedCount = safeFilings.filter((i) => (i.filingStatus || i.filing_status) === "DRAFTED").length;
+  const filedCount = safeFilings.filter((i) =>
+    ["FILED", "UNDER_EXAMINATION"].includes(i.filingStatus || i.filing_status)
+  ).length;
+  const grantedCount = safeFilings.filter((i) => (i.filingStatus || i.filing_status) === "GRANTED").length;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC", display: "flex", flexDirection: "column", fontFamily: "'Inter', sans-serif" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#F8FAFC",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <main style={{ flex: 1, padding: "28px 36px", maxWidth: "1280px", minWidth: 0 }}>
           {/* Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "28px", flexWrap: "wrap", gap: "16px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginBottom: "28px",
+              flexWrap: "wrap",
+              gap: "16px",
+            }}
+          >
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
                 <ShieldCheck size={28} color="#2563EB" />
@@ -153,53 +315,134 @@ export default function IpFilingTracker() {
                 </h2>
               </div>
               <p style={{ margin: 0, fontSize: "14px", color: "#64748B" }}>
-                Maintain a permanent repository of campus intellectual property, patent application numbers, and grant lifecycles.
+                Permanent repository to manage campus intellectual property, patent application numbers, and grant lifecycles.
               </p>
             </div>
 
-            <button
-              onClick={exportCsv}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "9px 16px",
-                borderRadius: "8px",
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #CBD5E1",
-                color: "#1E293B",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: "pointer",
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              }}
-            >
-              <Download size={16} /> Export IP Audit CSV
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <button
+                onClick={() => setIsNewModalOpen(true)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 18px",
+                  borderRadius: "8px",
+                  backgroundColor: "#2563EB",
+                  border: "none",
+                  color: "#FFFFFF",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.25)",
+                }}
+              >
+                <Plus size={16} /> Record New IP Filing
+              </button>
+
+              <button
+                onClick={exportCsv}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #CBD5E1",
+                  color: "#1E293B",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                }}
+              >
+                <Download size={16} /> Export CSV
+              </button>
+            </div>
           </div>
 
           {/* Metric KPI Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "28px" }}>
-            <div style={{ backgroundColor: "#FFFFFF", padding: "18px 20px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "16px",
+              marginBottom: "28px",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#FFFFFF",
+                padding: "18px 20px",
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+              }}
+            >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Total Tracked Assets</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>{ipFilings.length}</div>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
+                {safeFilings.length}
+              </div>
             </div>
-            <div style={{ backgroundColor: "#FFFFFF", padding: "18px 20px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div
+              style={{
+                backgroundColor: "#FFFFFF",
+                padding: "18px 20px",
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+              }}
+            >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>In Drafting Phase</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#2563EB", marginTop: "4px" }}>{draftedCount}</div>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#2563EB", marginTop: "4px" }}>
+                {draftedCount}
+              </div>
             </div>
-            <div style={{ backgroundColor: "#FFFFFF", padding: "18px 20px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Under Official Examination</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#D97706", marginTop: "4px" }}>{filedCount}</div>
+            <div
+              style={{
+                backgroundColor: "#FFFFFF",
+                padding: "18px 20px",
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+              }}
+            >
+              <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Under Examination</div>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#D97706", marginTop: "4px" }}>
+                {filedCount}
+              </div>
             </div>
-            <div style={{ backgroundColor: "#FFFFFF", padding: "18px 20px", borderRadius: "12px", border: "1px solid #E2E8F0", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div
+              style={{
+                backgroundColor: "#FFFFFF",
+                padding: "18px 20px",
+                borderRadius: "12px",
+                border: "1px solid #E2E8F0",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
+              }}
+            >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Granted IP Rights</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#059669", marginTop: "4px" }}>{grantedCount}</div>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#059669", marginTop: "4px" }}>
+                {grantedCount}
+              </div>
             </div>
           </div>
 
           {/* Search & Filter Controls */}
-          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "16px 20px", marginBottom: "20px", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: "12px",
+              border: "1px solid #E2E8F0",
+              padding: "16px 20px",
+              marginBottom: "20px",
+              display: "flex",
+              gap: "12px",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
             <div style={{ position: "relative", flex: "1 1 260px" }}>
               <Search size={16} color="#94A3B8" style={{ position: "absolute", left: "12px", top: "11px" }} />
               <input
@@ -223,7 +466,13 @@ export default function IpFilingTracker() {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", backgroundColor: "#FFFFFF" }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #CBD5E1",
+                  fontSize: "13px",
+                  backgroundColor: "#FFFFFF",
+                }}
               >
                 <option value="ALL">All Categories</option>
                 <option value="PATENT">Patent</option>
@@ -238,7 +487,13 @@ export default function IpFilingTracker() {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", backgroundColor: "#FFFFFF" }}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid #CBD5E1",
+                  fontSize: "13px",
+                  backgroundColor: "#FFFFFF",
+                }}
               >
                 <option value="ALL">All Statuses</option>
                 <option value="DRAFTED">Drafted</option>
@@ -251,16 +506,43 @@ export default function IpFilingTracker() {
           </div>
 
           {/* Table */}
-          <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", overflow: "hidden" }}>
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: "12px",
+              border: "1px solid #E2E8F0",
+              overflow: "hidden",
+            }}
+          >
             {loading ? (
-              <div style={{ padding: "40px", textAlign: "center", color: "#64748B" }}>Loading IP filings repository...</div>
+              <div style={{ padding: "40px", textAlign: "center", color: "#64748B" }}>
+                Loading IP filings repository...
+              </div>
             ) : filteredFilings.length === 0 ? (
               <div style={{ padding: "48px 20px", textAlign: "center", color: "#64748B" }}>
                 <ShieldCheck size={36} color="#CBD5E1" style={{ margin: "0 auto 12px auto" }} />
                 <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>No IP Filings Matched</h4>
-                <p style={{ margin: 0, fontSize: "13px" }}>
-                  Research proposals endorsed as "Ready for IP" automatically show up here.
+                <p style={{ margin: "0 0 16px 0", fontSize: "13px" }}>
+                  Record a new IP application or endorse a campus proposal to begin.
                 </p>
+                <button
+                  onClick={() => setIsNewModalOpen(true)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    backgroundColor: "#2563EB",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontWeight: 600,
+                    fontSize: "13px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Plus size={15} /> Record IP Filing Now
+                </button>
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -273,13 +555,13 @@ export default function IpFilingTracker() {
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>Inventors &amp; Collaborators</th>
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>Filing Date</th>
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>Status</th>
-                      <th style={{ padding: "14px 16px", fontWeight: 700 }}>Action</th>
+                      <th style={{ padding: "14px 16px", fontWeight: 700, textAlign: "right" }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredFilings.map((ip) => {
-                      const title = ip.projectTitle || ip.project_title;
-                      const student = ip.studentName || ip.student_name;
+                      const title = ip.projectTitle || ip.project_title || "Campus Invention";
+                      const student = ip.studentName || ip.student_name || "Lead Researcher";
                       const appNo = ip.applicationNo || ip.application_no;
                       const ipType = ip.ipType || ip.ip_type;
                       const status = ip.filingStatus || ip.filing_status;
@@ -288,8 +570,10 @@ export default function IpFilingTracker() {
                       return (
                         <tr key={ip.id} style={{ borderBottom: "1px solid #F1F5F9" }}>
                           <td style={{ padding: "14px 16px" }}>
-                            <div style={{ fontWeight: 700, color: "#0F172A", maxWidth: "320px" }}>{title}</div>
-                            <div style={{ fontSize: "12px", color: "#64748B", marginTop: "2px" }}>Author: {student}</div>
+                            <div style={{ fontWeight: 700, color: "#0F172A", maxWidth: "300px" }}>{title}</div>
+                            <div style={{ fontSize: "12px", color: "#64748B", marginTop: "2px" }}>
+                              Author / Lead: {student}
+                            </div>
                           </td>
                           <td style={{ padding: "14px 16px" }}>
                             <span
@@ -305,37 +589,62 @@ export default function IpFilingTracker() {
                               {ipType}
                             </span>
                           </td>
-                          <td style={{ padding: "14px 16px", fontFamily: "monospace", fontWeight: 700, color: "#2563EB" }}>
+                          <td
+                            style={{
+                              padding: "14px 16px",
+                              fontFamily: "monospace",
+                              fontWeight: 700,
+                              color: "#2563EB",
+                            }}
+                          >
                             {appNo || "PENDING"}
                           </td>
-                          <td style={{ padding: "14px 16px", color: "#475569", maxWidth: "220px" }}>
+                          <td style={{ padding: "14px 16px", color: "#475569", maxWidth: "200px" }}>
                             {ip.inventors || student}
                           </td>
                           <td style={{ padding: "14px 16px", color: "#64748B" }}>
                             {date || "In Drafting"}
                           </td>
-                          <td style={{ padding: "14px 16px" }}>
-                            {getFilingStatusBadge(status)}
-                          </td>
-                          <td style={{ padding: "14px 16px" }}>
-                            <button
-                              onClick={() => setEditingFiling(ip)}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "5px",
-                                padding: "6px 12px",
-                                borderRadius: "6px",
-                                backgroundColor: "#EFF6FF",
-                                color: "#2563EB",
-                                border: "1px solid #BFDBFE",
-                                fontSize: "12px",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                              }}
-                            >
-                              <Edit3 size={14} /> Manage IP
-                            </button>
+                          <td style={{ padding: "14px 16px" }}>{getFilingStatusBadge(status)}</td>
+                          <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                              <button
+                                onClick={() => setEditingFiling(ip)}
+                                title="Manage & Update IP Lifecycle"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: "6px 10px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#EFF6FF",
+                                  color: "#2563EB",
+                                  border: "1px solid #BFDBFE",
+                                  fontSize: "12px",
+                                  fontWeight: 600,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <Edit3 size={13} /> Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteIp(ip.id, title)}
+                                title="Remove IP record"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  padding: "6px 8px",
+                                  borderRadius: "6px",
+                                  backgroundColor: "#FEF2F2",
+                                  color: "#DC2626",
+                                  border: "1px solid #FECACA",
+                                  fontSize: "12px",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -347,6 +656,426 @@ export default function IpFilingTracker() {
           </div>
         </main>
       </div>
+
+      {/* Record New IP Filing Modal */}
+      {isNewModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1100,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "580px",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "16px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              padding: "26px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxSizing: "border-box",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "18px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "8px",
+                    backgroundColor: "#EFF6FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Plus size={20} color="#2563EB" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
+                    Record New Institutional IP Filing
+                  </h3>
+                  <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>
+                    Archive a patent, copyright, or design registration into the campus IP repository
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsNewModalOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#94A3B8",
+                  padding: "4px",
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateIp} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {/* Optional Link to Proposal */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Link to Campus Research Proposal (Optional)
+                </label>
+                <select
+                  value={newFiling.projectId}
+                  onChange={(e) => handleSelectProposal(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    backgroundColor: "#FFFFFF",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <option value="">[ Independent Invention / Custom Entry ]</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      #{p.id} — {p.title} ({p.studentName || "Student"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Invention / IP Title <span style={{ color: "#EF4444" }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newFiling.projectTitle}
+                  onChange={(e) => setNewFiling({ ...newFiling, projectTitle: e.target.value })}
+                  placeholder="e.g. Autonomous Drone Swarm Navigation via Deep Reinforcement Learning"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              {/* Lead Researcher */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Lead Researcher / Applicant Name
+                </label>
+                <input
+                  type="text"
+                  value={newFiling.studentName}
+                  onChange={(e) => setNewFiling({ ...newFiling, studentName: e.target.value })}
+                  placeholder="e.g. Alex Johnson"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              {/* IP Category & Status */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#334155",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    IP Category
+                  </label>
+                  <select
+                    value={newFiling.ipType}
+                    onChange={(e) => {
+                      const t = e.target.value;
+                      setNewFiling({
+                        ...newFiling,
+                        ipType: t,
+                        applicationNo: generateNewAppNo(t),
+                      });
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "9px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    <option value="PATENT">Patent</option>
+                    <option value="COPYRIGHT">Copyright</option>
+                    <option value="TRADE_SECRET">Trade Secret</option>
+                    <option value="INDUSTRIAL_DESIGN">Industrial Design</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#334155",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    Lifecycle Status
+                  </label>
+                  <select
+                    value={newFiling.filingStatus}
+                    onChange={(e) => setNewFiling({ ...newFiling, filingStatus: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "9px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    <option value="DRAFTED">Drafted</option>
+                    <option value="FILED">Application Filed</option>
+                    <option value="UNDER_EXAMINATION">Under Examination</option>
+                    <option value="GRANTED">Patent Granted</option>
+                    <option value="REJECTED">Rejected</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Application No. & Filing Date */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    <label style={{ fontSize: "12px", fontWeight: 600, color: "#334155" }}>
+                      Application Number
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNewFiling({
+                          ...newFiling,
+                          applicationNo: generateNewAppNo(newFiling.ipType),
+                        })
+                      }
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#2563EB",
+                        fontSize: "11px",
+                        cursor: "pointer",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Regenerate
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={newFiling.applicationNo}
+                    onChange={(e) => setNewFiling({ ...newFiling, applicationNo: e.target.value })}
+                    placeholder="e.g. IN202641098234"
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#334155",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    Filing Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newFiling.filingDate}
+                    onChange={(e) => setNewFiling({ ...newFiling, filingDate: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Inventors */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Inventors &amp; Collaborators
+                </label>
+                <input
+                  type="text"
+                  value={newFiling.inventors}
+                  onChange={(e) => setNewFiling({ ...newFiling, inventors: e.target.value })}
+                  placeholder="e.g. Alex Johnson, Dr. Robert Vance"
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Institutional IP Notes &amp; Prior Art Log
+                </label>
+                <textarea
+                  rows={3}
+                  value={newFiling.notes}
+                  onChange={(e) => setNewFiling({ ...newFiling, notes: e.target.value })}
+                  placeholder="Notes on novelty check, prior art search, or patent office communication..."
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                    resize: "vertical",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsNewModalOpen(false)}
+                  style={{
+                    padding: "9px 16px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    backgroundColor: "#FFFFFF",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  style={{
+                    padding: "9px 20px",
+                    borderRadius: "8px",
+                    backgroundColor: "#2563EB",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: submitting ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {submitting ? "Recording..." : "Archive IP Record"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Edit IP Modal */}
       {editingFiling && (
@@ -362,7 +1091,7 @@ export default function IpFilingTracker() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            zIndex: 1000,
+            zIndex: 1100,
             padding: "20px",
           }}
         >
@@ -374,36 +1103,68 @@ export default function IpFilingTracker() {
               borderRadius: "16px",
               boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2)",
               padding: "26px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxSizing: "border-box",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-              <div
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "16px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "8px",
+                    backgroundColor: "#EFF6FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ShieldCheck size={20} color="#2563EB" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
+                    Manage Institutional IP Record
+                  </h3>
+                  <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>
+                    {editingFiling.projectTitle || editingFiling.project_title}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingFiling(null)}
                 style={{
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "8px",
-                  backgroundColor: "#EFF6FF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#94A3B8",
+                  padding: "4px",
                 }}
               >
-                <ShieldCheck size={20} color="#2563EB" />
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
-                  Manage Institutional IP Record
-                </h3>
-                <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>
-                  {editingFiling.projectTitle || editingFiling.project_title}
-                </p>
-              </div>
+                <X size={20} />
+              </button>
             </div>
 
             <form onSubmit={handleUpdateIp} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#334155",
+                      marginBottom: "4px",
+                    }}
+                  >
                     IP Category
                   </label>
                   <select
@@ -415,7 +1176,14 @@ export default function IpFilingTracker() {
                         ip_type: e.target.value,
                       })
                     }
-                    style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px" }}
+                    style={{
+                      width: "100%",
+                      padding: "9px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
                   >
                     <option value="PATENT">Patent</option>
                     <option value="COPYRIGHT">Copyright</option>
@@ -425,7 +1193,15 @@ export default function IpFilingTracker() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#334155",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Lifecycle Status
                   </label>
                   <select
@@ -437,7 +1213,14 @@ export default function IpFilingTracker() {
                         filing_status: e.target.value,
                       })
                     }
-                    style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px" }}
+                    style={{
+                      width: "100%",
+                      padding: "9px",
+                      borderRadius: "8px",
+                      border: "1px solid #CBD5E1",
+                      fontSize: "13px",
+                      boxSizing: "border-box",
+                    }}
                   >
                     <option value="DRAFTED">Drafted</option>
                     <option value="FILED">Application Filed</option>
@@ -449,7 +1232,15 @@ export default function IpFilingTracker() {
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
                   Application Number
                 </label>
                 <input
@@ -463,12 +1254,27 @@ export default function IpFilingTracker() {
                     })
                   }
                   placeholder="e.g. IN202641098234"
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
                   Filing Date
                 </label>
                 <input
@@ -481,12 +1287,27 @@ export default function IpFilingTracker() {
                       filing_date: e.target.value,
                     })
                   }
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
                   Inventors &amp; Collaborators
                 </label>
                 <input
@@ -494,12 +1315,27 @@ export default function IpFilingTracker() {
                   value={editingFiling.inventors || ""}
                   onChange={(e) => setEditingFiling({ ...editingFiling, inventors: e.target.value })}
                   placeholder="e.g. Sarah Williams, Dr. Emily Carter"
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", boxSizing: "border-box" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "4px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#334155",
+                    marginBottom: "4px",
+                  }}
+                >
                   Institutional IP Cell Notes &amp; Examination Log
                 </label>
                 <textarea
@@ -507,7 +1343,15 @@ export default function IpFilingTracker() {
                   value={editingFiling.notes || ""}
                   onChange={(e) => setEditingFiling({ ...editingFiling, notes: e.target.value })}
                   placeholder="Notes on novelty check, prior art search, or examiner queries..."
-                  style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1px solid #CBD5E1", fontSize: "13px", boxSizing: "border-box", resize: "vertical" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "13px",
+                    boxSizing: "border-box",
+                    resize: "vertical",
+                  }}
                 />
               </div>
 
@@ -515,15 +1359,33 @@ export default function IpFilingTracker() {
                 <button
                   type="button"
                   onClick={() => setEditingFiling(null)}
-                  style={{ padding: "9px 16px", borderRadius: "8px", border: "1px solid #CBD5E1", backgroundColor: "#FFFFFF", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}
+                  style={{
+                    padding: "9px 16px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    backgroundColor: "#FFFFFF",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: "9px 20px", borderRadius: "8px", backgroundColor: "#2563EB", color: "#FFFFFF", border: "none", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}
+                  disabled={submitting}
+                  style={{
+                    padding: "9px 20px",
+                    borderRadius: "8px",
+                    backgroundColor: "#2563EB",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: submitting ? "not-allowed" : "pointer",
+                  }}
                 >
-                  Save IP Details
+                  {submitting ? "Saving..." : "Save IP Details"}
                 </button>
               </div>
             </form>

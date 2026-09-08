@@ -43,18 +43,40 @@ public class IpFilingService {
     }
 
     public IpFiling createOrUpdateFiling(IpFilingRequest request) {
-        Optional<IpFiling> existingOpt = ipFilingRepository.findByProjectId(request.getProjectId());
-        IpFiling filing = existingOpt.orElseGet(IpFiling::new);
+        IpFiling filing = null;
+        if (request.getProjectId() != null) {
+            Optional<IpFiling> existingOpt = ipFilingRepository.findByProjectId(request.getProjectId());
+            if (existingOpt.isPresent()) {
+                filing = existingOpt.get();
+            }
+        }
+        if (filing == null) {
+            filing = new IpFiling();
+        }
 
         filing.setProjectId(request.getProjectId());
 
-        // Resolve Project details
+        // Resolve Project details if available
         if (request.getProjectId() != null) {
             Optional<Project> projOpt = projectRepository.findById(request.getProjectId());
-            projOpt.ifPresent(p -> {
+            if (projOpt.isPresent()) {
+                Project p = projOpt.get();
                 filing.setProjectTitle(p.getTitle());
                 filing.setStudentName(p.getStudentName());
-            });
+            }
+        }
+
+        if (request.getProjectTitle() != null && !request.getProjectTitle().isBlank()) {
+            filing.setProjectTitle(request.getProjectTitle().trim());
+        }
+        if (request.getStudentName() != null && !request.getStudentName().isBlank()) {
+            filing.setStudentName(request.getStudentName().trim());
+        }
+        if (filing.getProjectTitle() == null || filing.getProjectTitle().isBlank()) {
+            filing.setProjectTitle("Campus Research Invention");
+        }
+        if (filing.getStudentName() == null || filing.getStudentName().isBlank()) {
+            filing.setStudentName("Institutional Researcher");
         }
 
         if (request.getIpType() != null) {
@@ -64,7 +86,7 @@ public class IpFilingService {
         }
 
         if (request.getApplicationNo() != null && !request.getApplicationNo().isBlank()) {
-            filing.setApplicationNo(request.getApplicationNo());
+            filing.setApplicationNo(request.getApplicationNo().trim());
         } else if (filing.getApplicationNo() == null) {
             filing.setApplicationNo("IN-" + System.currentTimeMillis());
         }
@@ -94,13 +116,15 @@ public class IpFilingService {
         filing.setUpdatedAt(LocalDateTime.now());
         IpFiling saved = ipFilingRepository.save(filing);
 
-        // Record milestone trigger
-        milestoneService.recordMilestone(
-                request.getProjectId(),
-                "IP Filing: " + saved.getIpType() + " (" + saved.getFilingStatus() + ")",
-                "COMPLETED",
-                "Application: " + saved.getApplicationNo() + " | Status: " + saved.getFilingStatus()
-        );
+        // Record milestone trigger only if projectId is provided
+        if (request.getProjectId() != null) {
+            milestoneService.recordMilestone(
+                    request.getProjectId(),
+                    "IP Filing: " + saved.getIpType() + " (" + saved.getFilingStatus() + ")",
+                    "COMPLETED",
+                    "Application: " + saved.getApplicationNo() + " | Status: " + saved.getFilingStatus()
+            );
+        }
 
         return saved;
     }
@@ -108,6 +132,13 @@ public class IpFilingService {
     public IpFiling updateFiling(Long id, IpFilingRequest request) {
         IpFiling filing = ipFilingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("IP Filing not found with id: " + id));
+
+        if (request.getProjectTitle() != null && !request.getProjectTitle().isBlank()) {
+            filing.setProjectTitle(request.getProjectTitle().trim());
+        }
+        if (request.getStudentName() != null && !request.getStudentName().isBlank()) {
+            filing.setStudentName(request.getStudentName().trim());
+        }
 
         if (request.getIpType() != null) {
             try {
@@ -172,5 +203,9 @@ public class IpFilingService {
                 .filed(filed)
                 .drafted(drafted)
                 .build();
+    }
+
+    public void deleteFiling(Long id) {
+        ipFilingRepository.deleteById(id);
     }
 }

@@ -64,4 +64,14 @@ public class IpFilingController {
             return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFiling(@PathVariable Long id) {
+        try {
+            ipFilingService.deleteFiling(id);
+            return ResponseEntity.ok(Map.of("message", "IP filing deleted successfully"));
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
+        }
+    }
 }
