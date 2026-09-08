@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 1. MySQL 8 Database Service
+  # ============================================================================
+  mysql:
+    image: mysql:8.0
+    container_name: innoflow-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-campus_research_db}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_USER: ${DB_USER:-innoflow_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-innoflow_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./BackEnd/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - innoflow-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================================
+  # 2. InnoFlow Spring Boot REST API Backend
+  # ============================================================================
+  backend:
+    build:
+      context: ./BackEnd
+      dockerfile: Dockerfile
+    container_name: innoflow-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME:-campus_research_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-innoflow_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-innoflow_password}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - innoflow-network
+
+  # ============================================================================
+  # 3. InnoFlow React Client Frontend
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: innoflow-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - innoflow-network
+
+networks:
+  innoflow-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  uploads_data:
+    driver: local

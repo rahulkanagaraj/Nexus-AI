@@ -170,7 +170,7 @@ export default function FacultyReviewPanel() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
                         <span style={{ fontSize: "12px", fontWeight: 700, color: "#2563EB" }}>
-                          Student: {p.student_name || "Student"}
+                          Student: {p.studentName || p.student_name || "Student Researcher"}
                         </span>
                         <span style={{ fontSize: "11px", color: "#94A3B8" }}>{p.department}</span>
                       </div>
@@ -196,7 +196,7 @@ export default function FacultyReviewPanel() {
                         {selectedProject.title}
                       </h3>
                       <span style={{ fontSize: "12px", color: "#64748B" }}>
-                        Submitted by: <strong>{selectedProject.student_name}</strong> ({selectedProject.department})
+                        Submitted by: <strong>{selectedProject.studentName || selectedProject.student_name}</strong> ({selectedProject.department})
                       </span>
                     </div>
                   </div>
@@ -208,10 +208,13 @@ export default function FacultyReviewPanel() {
                       Abstract &amp; Novelty Claims
                     </h4>
                     <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 12px 0", lineHeight: 1.5 }}>
-                      {selectedProject.abstract_text}
+                      {selectedProject.abstractText || selectedProject.abstract_text}
                     </p>
                     <a
-                      href={selectedProject.file_url || "/uploads/default_abstract.pdf"}
+                      href={(() => {
+                        const url = selectedProject.fileUrl || selectedProject.file_url || "/uploads/default_abstract.pdf";
+                        return url.startsWith("http") ? url : `${import.meta.env.VITE_API_URL || ""}${url}`;
+                      })()}
                       target="_blank"
                       rel="noreferrer"
                       style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#2563EB", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}

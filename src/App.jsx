@@ -15,7 +15,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    if (user.role === "FACULTY" || user.role === "ADMIN") {
+    if (user.role === "IP_CELL") {
+      return <Navigate to="/ip-tracker" replace />;
+    } else if (user.role === "FACULTY" || user.role === "ADMIN") {
       return <Navigate to="/faculty/dashboard" replace />;
     }
     return <Navigate to="/student/dashboard" replace />;
@@ -29,6 +31,9 @@ const HomeRedirect = () => {
   const { user, isAuthenticated } = useAuth();
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
+  }
+  if (user.role === "IP_CELL") {
+    return <Navigate to="/ip-tracker" replace />;
   }
   if (user.role === "FACULTY" || user.role === "ADMIN") {
     return <Navigate to="/faculty/dashboard" replace />;
@@ -47,7 +52,7 @@ export default function App() {
           <Route
             path="/student/dashboard"
             element={
-              <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <ProtectedRoute allowedRoles={["STUDENT", "ADMIN"]}>
                 <StudentDashboard />
               </ProtectedRoute>
             }
@@ -57,7 +62,7 @@ export default function App() {
           <Route
             path="/faculty/dashboard"
             element={
-              <ProtectedRoute allowedRoles={["FACULTY", "ADMIN"]}>
+              <ProtectedRoute allowedRoles={["FACULTY", "IP_CELL", "ADMIN"]}>
                 <FacultyReviewPanel />
               </ProtectedRoute>
             }
@@ -67,7 +72,7 @@ export default function App() {
           <Route
             path="/ip-tracker"
             element={
-              <ProtectedRoute allowedRoles={["STUDENT", "FACULTY", "ADMIN"]}>
+              <ProtectedRoute allowedRoles={["STUDENT", "FACULTY", "IP_CELL", "ADMIN"]}>
                 <IpFilingTracker />
               </ProtectedRoute>
             }

@@ -9,6 +9,7 @@ export default function Sidebar() {
 
   const isStudent = user.role === "STUDENT";
   const isFaculty = user.role === "FACULTY";
+  const isIpCell = user.role === "IP_CELL";
   const isAdmin = user.role === "ADMIN";
 
   const linkStyle = ({ isActive }) => ({
@@ -64,6 +65,19 @@ export default function Sidebar() {
           <NavLink to="/ip-tracker" style={linkStyle}>
             <ShieldCheck size={18} />
             IP &amp; Patent Tracker
+          </NavLink>
+        </>
+      )}
+
+      {isIpCell && (
+        <>
+          <NavLink to="/ip-tracker" style={linkStyle}>
+            <ShieldCheck size={18} />
+            IP &amp; Patent Tracker
+          </NavLink>
+          <NavLink to="/faculty/dashboard" style={linkStyle}>
+            <LayoutDashboard size={18} />
+            All Research Proposals
           </NavLink>
         </>
       )}
