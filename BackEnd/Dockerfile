@@ -29,8 +29,8 @@ COPY --from=builder /build/target/*.jar app.jar
 
 # Environment defaults (can be overridden at runtime)
 ENV PORT=8080 \
-    SPRING_PROFILES_ACTIVE=dev \
-    JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
+    SPRING_PROFILES_ACTIVE=prod \
+    JAVA_OPTS="-Xms128m -Xmx300m -XX:+UseG1GC"
 
 EXPOSE 8080
 
