@@ -1,21 +1,39 @@
-/* Clean, Handcrafted Campus Portal CSS Styles */
+/* Modern Light Theme CSS Variables & Global Styles */
 
 :root {
-  --primary-color: #1e40af;
-  --primary-hover: #1d4ed8;
-  --bg-main: #f3f4f6;
-  --bg-card: #ffffff;
-  --text-dark: #111827;
-  --text-muted: #6b7280;
-  --border-color: #e5e7eb;
+  /* Backgrounds */
+  --bg-main: #F6F9FC;
+  --bg-section: #EEF4F8;
+  --bg-card: #FFFFFF;
+
+  /* Accent System */
+  --primary-accent: #4B5D8C;
+  --primary-hover: #3F507A;
+  --light-accent: #E8EDF7;
+
+  /* Typography Colors */
+  --text-main: #1F2937;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+
+  /* Borders */
+  --border-color: #D9E2EC;
+
+  /* Form Controls */
+  --input-bg: #F8FAFC;
+  --input-border: #CBD5E1;
+  --input-text: #1F2937;
+  --input-placeholder: #94A3B8;
+  --input-focus-border: #4B5D8C;
+  --input-focus-ring: rgba(75, 93, 140, 0.15);
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-main);
-  color: var(--text-dark);
+  color: var(--text-main);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -25,47 +43,68 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #EEF4F8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #94A3B8;
 }
 
-/* Clean Card Elevate */
+/* Global Form Controls (Inputs, Selects, Textareas) */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--input-text) !important;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--input-focus-border) !important;
+  box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+}
+
+/* Textarea Specific Soft Styling */
+textarea {
+  background-color: #F8FAFC !important;
+  border: 1px solid #CBD5E1 !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  line-height: 1.5 !important;
+  font-size: 13px !important;
+}
+
+/* Clean Card Styling */
 .custom-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .custom-card:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06);
 }
 
-/* Form Controls */
-.form-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.form-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-/* Table Clean Styling */
+/* Table Styling */
 .custom-table {
   width: 100%;
   border-collapse: separate;
@@ -73,24 +112,24 @@ body {
 }
 
 .custom-table th {
-  background-color: #f9fafb;
-  color: #4b5563;
+  background-color: var(--bg-section);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 12px 16px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .custom-table td {
   padding: 14px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #EEF4F8;
   font-size: 13px;
-  color: #1f2937;
+  color: var(--text-main);
   vertical-align: middle;
 }
 
 .custom-table tr:hover td {
-  background-color: #f9fafb;
+  background-color: #F8FAFC;
 }

@@ -14,10 +14,10 @@ export default function Navbar() {
         top: 0,
         zIndex: 1000,
         height: "64px",
-        backgroundColor: "#0F172A",
-        borderBottom: "1px solid #1E293B",
-        boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.25)",
-        fontFamily: "'Inter', sans-serif",
+        backgroundColor: "#FFFFFF",
+        borderBottom: "1px solid #D9E2EC",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+        fontFamily: "'Poppins', sans-serif",
         display: "flex",
         alignItems: "center",
         boxSizing: "border-box",
@@ -50,35 +50,22 @@ export default function Navbar() {
               width: "38px",
               height: "38px",
               borderRadius: "10px",
-              background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
+              background: "linear-gradient(135deg, #4B5D8C 0%, #3F507A 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 15px rgba(37, 99, 235, 0.5)",
+              boxShadow: "0 2px 8px rgba(75, 93, 140, 0.25)",
             }}
           >
             <Layers size={20} color="#FFFFFF" />
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.5px" }}>
+              <span style={{ fontSize: "18px", fontWeight: 800, color: "#1F2937", letterSpacing: "-0.5px" }}>
                 Nexus-AI
               </span>
-              <span
-                style={{
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  backgroundColor: "rgba(99, 102, 241, 0.2)",
-                  color: "#818CF8",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  border: "1px solid rgba(99, 102, 241, 0.3)",
-                }}
-              >
-                PRO
-              </span>
             </div>
-            <p style={{ margin: 0, fontSize: "11px", color: "#94A3B8" }}>
+            <p style={{ margin: 0, fontSize: "11px", color: "#64748B" }}>
               Research Lifecycle &amp; IP Hub
             </p>
           </div>
@@ -93,8 +80,8 @@ export default function Navbar() {
               gap: "10px",
               padding: "4px 12px",
               borderRadius: "20px",
-              backgroundColor: "#1E293B",
-              border: "1px solid #334155",
+              backgroundColor: "#F8FAFC",
+              border: "1px solid #D9E2EC",
             }}
           >
             <div
@@ -107,7 +94,7 @@ export default function Navbar() {
                     ? "#059669"
                     : user.role === "IP_CELL"
                     ? "#7C3AED"
-                    : "#2563EB",
+                    : "#4B5D8C",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -119,10 +106,10 @@ export default function Navbar() {
               {user.name ? user.name.charAt(0) : "U"}
             </div>
             <div>
-              <div style={{ fontSize: "13px", fontWeight: 700, color: "#F8FAFC", lineHeight: 1.2 }}>
+              <div style={{ fontSize: "13px", fontWeight: 700, color: "#1F2937", lineHeight: 1.2 }}>
                 {user.name}
               </div>
-              <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1 }}>
+              <div style={{ fontSize: "10px", color: "#64748B", lineHeight: 1 }}>
                 {user.role}
               </div>
             </div>

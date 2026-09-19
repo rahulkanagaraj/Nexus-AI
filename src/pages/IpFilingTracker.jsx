@@ -287,16 +287,16 @@ export default function IpFilingTracker() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "#F6F9FC",
         display: "flex",
         flexDirection: "column",
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
       }}
     >
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <main style={{ flex: 1, padding: "28px 36px", maxWidth: "1280px", minWidth: 0 }}>
+        <main style={{ flex: 1, padding: "24px 28px", minWidth: 0 }}>
           {/* Header */}
           <div
             style={{
@@ -310,8 +310,8 @@ export default function IpFilingTracker() {
           >
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
-                <ShieldCheck size={28} color="#2563EB" />
-                <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 800, color: "#0F172A", letterSpacing: "-0.5px" }}>
+                <ShieldCheck size={28} color="#4B5D8C" />
+                <h2 style={{ margin: 0, fontSize: "24px", fontWeight: 800, color: "#1F2937", letterSpacing: "-0.5px" }}>
                   Institutional IP &amp; Patent Collaborative Tracker
                 </h2>
               </div>
@@ -329,14 +329,16 @@ export default function IpFilingTracker() {
                   gap: "8px",
                   padding: "10px 18px",
                   borderRadius: "8px",
-                  backgroundColor: "#2563EB",
+                  backgroundColor: "#4B5D8C",
                   border: "none",
                   color: "#FFFFFF",
                   fontSize: "13px",
                   fontWeight: 600,
                   cursor: "pointer",
-                  boxShadow: "0 4px 6px -1px rgba(37, 99, 235, 0.25)",
+                  boxShadow: "0 4px 6px -1px rgba(75, 93, 140, 0.25)",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3F507A")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4B5D8C")}
               >
                 <Plus size={16} /> Record New IP Filing
               </button>
@@ -350,8 +352,8 @@ export default function IpFilingTracker() {
                   padding: "10px 16px",
                   borderRadius: "8px",
                   backgroundColor: "#FFFFFF",
-                  border: "1px solid #CBD5E1",
-                  color: "#1E293B",
+                  border: "1px solid #D9E2EC",
+                  color: "#1F2937",
                   fontSize: "13px",
                   fontWeight: 600,
                   cursor: "pointer",
@@ -377,12 +379,12 @@ export default function IpFilingTracker() {
                 backgroundColor: "#FFFFFF",
                 padding: "18px 20px",
                 borderRadius: "12px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid #D9E2EC",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
               }}
             >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Total Tracked Assets</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#0F172A", marginTop: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#1F2937", marginTop: "4px" }}>
                 {safeFilings.length}
               </div>
             </div>
@@ -391,12 +393,12 @@ export default function IpFilingTracker() {
                 backgroundColor: "#FFFFFF",
                 padding: "18px 20px",
                 borderRadius: "12px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid #D9E2EC",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
               }}
             >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>In Drafting Phase</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#2563EB", marginTop: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#4B5D8C", marginTop: "4px" }}>
                 {draftedCount}
               </div>
             </div>
@@ -405,7 +407,7 @@ export default function IpFilingTracker() {
                 backgroundColor: "#FFFFFF",
                 padding: "18px 20px",
                 borderRadius: "12px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid #D9E2EC",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
               }}
             >
@@ -419,12 +421,12 @@ export default function IpFilingTracker() {
                 backgroundColor: "#FFFFFF",
                 padding: "18px 20px",
                 borderRadius: "12px",
-                border: "1px solid #E2E8F0",
+                border: "1px solid #D9E2EC",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
               }}
             >
               <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600 }}>Granted IP Rights</div>
-              <div style={{ fontSize: "28px", fontWeight: 800, color: "#059669", marginTop: "4px" }}>
+              <div style={{ fontSize: "28px", fontWeight: 800, color: "#008000", marginTop: "4px" }}>
                 {grantedCount}
               </div>
             </div>
@@ -433,9 +435,9 @@ export default function IpFilingTracker() {
           {/* Search & Filter Controls */}
           <div
             style={{
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#EEF4F8",
               borderRadius: "12px",
-              border: "1px solid #E2E8F0",
+              border: "1px solid #D9E2EC",
               padding: "16px 20px",
               marginBottom: "20px",
               display: "flex",
@@ -456,6 +458,8 @@ export default function IpFilingTracker() {
                   padding: "8px 12px 8px 36px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "13px",
                   boxSizing: "border-box",
                 }}
@@ -471,8 +475,9 @@ export default function IpFilingTracker() {
                   padding: "8px 12px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "13px",
-                  backgroundColor: "#FFFFFF",
                 }}
               >
                 <option value="ALL">All Categories</option>
@@ -492,8 +497,9 @@ export default function IpFilingTracker() {
                   padding: "8px 12px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "13px",
-                  backgroundColor: "#FFFFFF",
                 }}
               >
                 <option value="ALL">All Statuses</option>
@@ -511,7 +517,7 @@ export default function IpFilingTracker() {
             style={{
               backgroundColor: "#FFFFFF",
               borderRadius: "12px",
-              border: "1px solid #E2E8F0",
+              border: "1px solid #D9E2EC",
               overflow: "hidden",
             }}
           >
@@ -522,7 +528,7 @@ export default function IpFilingTracker() {
             ) : filteredFilings.length === 0 ? (
               <div style={{ padding: "48px 20px", textAlign: "center", color: "#64748B" }}>
                 <ShieldCheck size={36} color="#CBD5E1" style={{ margin: "0 auto 12px auto" }} />
-                <h4 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "15px" }}>No IP Filings Matched</h4>
+                <h4 style={{ margin: "0 0 4px 0", color: "#1F2937", fontSize: "15px" }}>No IP Filings Matched</h4>
                 <p style={{ margin: "0 0 16px 0", fontSize: "13px" }}>
                   Record a new IP application or endorse a campus proposal to begin.
                 </p>
@@ -534,13 +540,15 @@ export default function IpFilingTracker() {
                     gap: "6px",
                     padding: "8px 16px",
                     borderRadius: "6px",
-                    backgroundColor: "#2563EB",
+                    backgroundColor: "#4B5D8C",
                     color: "#FFFFFF",
                     border: "none",
                     fontWeight: 600,
                     fontSize: "13px",
                     cursor: "pointer",
                   }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3F507A")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4B5D8C")}
                 >
                   <Plus size={15} /> Record IP Filing Now
                 </button>
@@ -549,7 +557,7 @@ export default function IpFilingTracker() {
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
                   <thead>
-                    <tr style={{ backgroundColor: "#F8FAFC", borderBottom: "1px solid #E2E8F0", color: "#475569" }}>
+                    <tr style={{ backgroundColor: "#F8FAFC", borderBottom: "1px solid #D9E2EC", color: "#64748B" }}>
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>Project Title &amp; Lead Researcher</th>
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>IP Category</th>
                       <th style={{ padding: "14px 16px", fontWeight: 700 }}>Application No.</th>
@@ -569,9 +577,9 @@ export default function IpFilingTracker() {
                       const date = ip.filingDate ? formatDate(ip.filingDate) : "In Drafting";
 
                       return (
-                        <tr key={ip.id} style={{ borderBottom: "1px solid #F1F5F9" }}>
+                        <tr key={ip.id} style={{ borderBottom: "1px solid #D9E2EC" }}>
                           <td style={{ padding: "14px 16px" }}>
-                            <div style={{ fontWeight: 700, color: "#0F172A", maxWidth: "300px" }}>{title}</div>
+                            <div style={{ fontWeight: 700, color: "#1F2937", maxWidth: "300px" }}>{title}</div>
                             <div style={{ fontSize: "12px", color: "#64748B", marginTop: "2px" }}>
                               Author / Lead: {student}
                             </div>
@@ -583,8 +591,8 @@ export default function IpFilingTracker() {
                                 fontWeight: 700,
                                 padding: "3px 8px",
                                 borderRadius: "4px",
-                                backgroundColor: "#F1F5F9",
-                                color: "#334155",
+                                backgroundColor: "#EEF4F8",
+                                color: "#1F2937",
                               }}
                             >
                               {ipType}
@@ -595,12 +603,12 @@ export default function IpFilingTracker() {
                               padding: "14px 16px",
                               fontFamily: "monospace",
                               fontWeight: 700,
-                              color: "#2563EB",
+                              color: "#4B5D8C",
                             }}
                           >
                             {appNo || "PENDING"}
                           </td>
-                          <td style={{ padding: "14px 16px", color: "#475569", maxWidth: "200px" }}>
+                          <td style={{ padding: "14px 16px", color: "#1F2937", maxWidth: "200px" }}>
                             {ip.inventors || student}
                           </td>
                           <td style={{ padding: "14px 16px", color: "#64748B" }}>
@@ -618,9 +626,9 @@ export default function IpFilingTracker() {
                                   gap: "4px",
                                   padding: "6px 10px",
                                   borderRadius: "6px",
-                                  backgroundColor: "#EFF6FF",
-                                  color: "#2563EB",
-                                  border: "1px solid #BFDBFE",
+                                  backgroundColor: "#E8EDF7",
+                                  color: "#4B5D8C",
+                                  border: "1px solid #D9E2EC",
                                   fontSize: "12px",
                                   fontWeight: 600,
                                   cursor: "pointer",
@@ -703,16 +711,16 @@ export default function IpFilingTracker() {
                     width: "36px",
                     height: "36px",
                     borderRadius: "8px",
-                    backgroundColor: "#EFF6FF",
+                    backgroundColor: "#E8EDF7",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Plus size={20} color="#2563EB" />
+                  <Plus size={20} color="#4B5D8C" />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#1F2937" }}>
                     Record New Institutional IP Filing
                   </h3>
                   <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>
@@ -742,7 +750,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -756,8 +764,9 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
-                    backgroundColor: "#FFFFFF",
                     boxSizing: "border-box",
                   }}
                 >
@@ -777,7 +786,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -794,6 +803,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -807,7 +818,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -823,6 +834,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -837,7 +850,7 @@ export default function IpFilingTracker() {
                       display: "block",
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#334155",
+                      color: "#1F2937",
                       marginBottom: "4px",
                     }}
                   >
@@ -858,6 +871,8 @@ export default function IpFilingTracker() {
                       padding: "9px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -875,7 +890,7 @@ export default function IpFilingTracker() {
                       display: "block",
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#334155",
+                      color: "#1F2937",
                       marginBottom: "4px",
                     }}
                   >
@@ -889,6 +904,8 @@ export default function IpFilingTracker() {
                       padding: "9px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -913,7 +930,7 @@ export default function IpFilingTracker() {
                       marginBottom: "4px",
                     }}
                   >
-                    <label style={{ fontSize: "12px", fontWeight: 600, color: "#334155" }}>
+                    <label style={{ fontSize: "12px", fontWeight: 600, color: "#1F2937" }}>
                       Application Number
                     </label>
                     <button
@@ -927,7 +944,7 @@ export default function IpFilingTracker() {
                       style={{
                         background: "none",
                         border: "none",
-                        color: "#2563EB",
+                        color: "#4B5D8C",
                         fontSize: "11px",
                         cursor: "pointer",
                         fontWeight: 600,
@@ -947,6 +964,8 @@ export default function IpFilingTracker() {
                       padding: "9px 12px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -959,7 +978,7 @@ export default function IpFilingTracker() {
                       display: "block",
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#334155",
+                      color: "#1F2937",
                       marginBottom: "4px",
                     }}
                   >
@@ -974,6 +993,8 @@ export default function IpFilingTracker() {
                       padding: "9px 12px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -988,7 +1009,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1004,6 +1025,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -1017,7 +1040,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1033,6 +1056,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                     resize: "vertical",
@@ -1049,6 +1074,7 @@ export default function IpFilingTracker() {
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
                     backgroundColor: "#FFFFFF",
+                    color: "#64748B",
                     fontSize: "13px",
                     fontWeight: 600,
                     cursor: "pointer",
@@ -1062,13 +1088,15 @@ export default function IpFilingTracker() {
                   style={{
                     padding: "9px 20px",
                     borderRadius: "8px",
-                    backgroundColor: "#2563EB",
+                    backgroundColor: "#4B5D8C",
                     color: "#FFFFFF",
                     border: "none",
                     fontSize: "13px",
                     fontWeight: 600,
                     cursor: submitting ? "not-allowed" : "pointer",
                   }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3F507A")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4B5D8C")}
                 >
                   {submitting ? "Recording..." : "Archive IP Record"}
                 </button>
@@ -1123,16 +1151,16 @@ export default function IpFilingTracker() {
                     width: "36px",
                     height: "36px",
                     borderRadius: "8px",
-                    backgroundColor: "#EFF6FF",
+                    backgroundColor: "#E8EDF7",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <ShieldCheck size={20} color="#2563EB" />
+                  <ShieldCheck size={20} color="#4B5D8C" />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
+                  <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#1F2937" }}>
                     Manage Institutional IP Record
                   </h3>
                   <p style={{ margin: 0, fontSize: "12px", color: "#64748B" }}>
@@ -1162,7 +1190,7 @@ export default function IpFilingTracker() {
                       display: "block",
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#334155",
+                      color: "#1F2937",
                       marginBottom: "4px",
                     }}
                   >
@@ -1182,6 +1210,8 @@ export default function IpFilingTracker() {
                       padding: "9px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -1199,7 +1229,7 @@ export default function IpFilingTracker() {
                       display: "block",
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#334155",
+                      color: "#1F2937",
                       marginBottom: "4px",
                     }}
                   >
@@ -1219,6 +1249,8 @@ export default function IpFilingTracker() {
                       padding: "9px",
                       borderRadius: "8px",
                       border: "1px solid #CBD5E1",
+                      backgroundColor: "#F8FAFC",
+                      color: "#1F2937",
                       fontSize: "13px",
                       boxSizing: "border-box",
                     }}
@@ -1238,7 +1270,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1260,6 +1292,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -1272,7 +1306,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1293,6 +1327,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -1305,7 +1341,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1321,6 +1357,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -1333,7 +1371,7 @@ export default function IpFilingTracker() {
                     display: "block",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#334155",
+                    color: "#1F2937",
                     marginBottom: "4px",
                   }}
                 >
@@ -1349,6 +1387,8 @@ export default function IpFilingTracker() {
                     padding: "9px 12px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                     resize: "vertical",
@@ -1365,6 +1405,7 @@ export default function IpFilingTracker() {
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
                     backgroundColor: "#FFFFFF",
+                    color: "#64748B",
                     fontSize: "13px",
                     fontWeight: 600,
                     cursor: "pointer",
@@ -1378,13 +1419,15 @@ export default function IpFilingTracker() {
                   style={{
                     padding: "9px 20px",
                     borderRadius: "8px",
-                    backgroundColor: "#2563EB",
+                    backgroundColor: "#4B5D8C",
                     color: "#FFFFFF",
                     border: "none",
                     fontSize: "13px",
                     fontWeight: 600,
                     cursor: submitting ? "not-allowed" : "pointer",
                   }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3F507A")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4B5D8C")}
                 >
                   {submitting ? "Saving..." : "Save IP Details"}
                 </button>

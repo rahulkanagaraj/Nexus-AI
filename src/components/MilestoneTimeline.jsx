@@ -4,9 +4,9 @@ import { CheckCircle2, Clock, FileText, AlertCircle, Award, ShieldCheck } from "
 export default function MilestoneTimeline({ status }) {
   const steps = [
     { id: "SUBMITTED", label: "Proposal Submitted", icon: FileText },
-    { id: "UNDER_REVIEW", label: "Under Faculty Review", icon: Clock },
+    { id: "UNDER_REVIEW", label: "In Evaluation", icon: Clock },
     { id: "APPROVED", label: "Faculty Approved", icon: CheckCircle2 },
-    { id: "READY_FOR_IP", label: "Ready for IP Filing", icon: ShieldCheck },
+    { id: "READY_FOR_IP", label: "Patent Eligible", icon: ShieldCheck },
     { id: "IP_FILED", label: "IP Patent Filed", icon: Award },
   ];
 

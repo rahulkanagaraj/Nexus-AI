@@ -73,7 +73,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
         <div
           style={{
             padding: "20px 24px",
-            backgroundColor: "#0F172A",
+            backgroundColor: "#4B5D8C",
             color: "#FFFFFF",
             display: "flex",
             alignItems: "center",
@@ -81,26 +81,26 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <FileText size={20} color="#60A5FA" />
+            <FileText size={20} color="#E8EDF7" />
             <h3 style={{ margin: 0, fontSize: "17px", fontWeight: 700 }}>Initiate New Campus Research Project</h3>
           </div>
           <button
             onClick={onClose}
-            style={{ backgroundColor: "transparent", border: "none", color: "#94A3B8", cursor: "pointer" }}
+            style={{ backgroundColor: "transparent", border: "none", color: "#E8EDF7", cursor: "pointer" }}
           >
             <X size={20} />
           </button>
         </div>
 
         {error && (
-          <div style={{ backgroundColor: "#FEF2F2", color: "#991B1B", padding: "12px 24px", fontSize: "13px" }}>
+          <div style={{ backgroundColor: "#FEF2F2", color: "#DC2626", padding: "12px 24px", fontSize: "13px", borderBottom: "1px solid #D9E2EC" }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "16px" }}>
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "6px" }}>
               Project Title *
             </label>
             <input
@@ -114,6 +114,8 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                 padding: "10px 12px",
                 borderRadius: "8px",
                 border: "1px solid #CBD5E1",
+                backgroundColor: "#F8FAFC",
+                color: "#1F2937",
                 fontSize: "14px",
                 boxSizing: "border-box",
               }}
@@ -122,7 +124,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "6px" }}>
                 Research Domain / Field
               </label>
               <select
@@ -133,6 +135,8 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                   padding: "10px 12px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "14px",
                   boxSizing: "border-box",
                 }}
@@ -146,7 +150,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "6px" }}>
                 Assign Faculty Reviewer / Mentor
               </label>
               <select
@@ -157,6 +161,8 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                   padding: "10px 12px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "14px",
                   boxSizing: "border-box",
                 }}
@@ -168,7 +174,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "6px" }}>
               Abstract / Project Objectives *
             </label>
             <textarea
@@ -182,6 +188,8 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                 padding: "10px 12px",
                 borderRadius: "8px",
                 border: "1px solid #CBD5E1",
+                backgroundColor: "#F8FAFC",
+                color: "#1F2937",
                 fontSize: "13px",
                 boxSizing: "border-box",
                 resize: "vertical",
@@ -190,7 +198,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "6px" }}>
               Upload Proposal Document (PDF Abstract)
             </label>
             <div
@@ -212,7 +220,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
               />
               <label htmlFor="proposal-file-input" style={{ cursor: "pointer" }}>
                 <Upload size={24} color="#64748B" style={{ marginBottom: "6px" }} />
-                <div style={{ fontSize: "13px", color: "#334155", fontWeight: 600 }}>
+                <div style={{ fontSize: "13px", color: "#1F2937", fontWeight: 600 }}>
                   {file ? file.name : "Click to choose PDF document"}
                 </div>
                 <span style={{ fontSize: "11px", color: "#94A3B8" }}>PDF, DOCX up to 10MB</span>
@@ -229,7 +237,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                 borderRadius: "8px",
                 border: "1px solid #CBD5E1",
                 backgroundColor: "#FFFFFF",
-                color: "#475569",
+                color: "#64748B",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor: "pointer",
@@ -243,7 +251,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
               style={{
                 padding: "10px 20px",
                 borderRadius: "8px",
-                backgroundColor: "#2563EB",
+                backgroundColor: "#4B5D8C",
                 color: "#FFFFFF",
                 fontSize: "14px",
                 fontWeight: 600,
@@ -251,6 +259,8 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                 cursor: isSubmitting ? "not-allowed" : "pointer",
                 opacity: isSubmitting ? 0.7 : 1,
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#3F507A")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4B5D8C")}
             >
               {isSubmitting ? '✨ Analyzing PDF with AI...' : 'Submit Project'}
             </button>

@@ -87,11 +87,11 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "radial-gradient(ellipse at top, #1E293B 0%, #0F172A 100%)",
+        background: "linear-gradient(135deg, #EEF4F8 0%, #F6F9FC 100%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         padding: "24px 16px",
       }}
     >
@@ -101,8 +101,8 @@ export default function LoginPage() {
           maxWidth: "420px",
           backgroundColor: "#FFFFFF",
           borderRadius: "16px",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.35)",
+          border: "1px solid #D9E2EC",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)",
           padding: "32px 28px",
         }}
       >
@@ -112,18 +112,18 @@ export default function LoginPage() {
             style={{
               width: "48px",
               height: "48px",
-              background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
+              background: "linear-gradient(135deg, #4B5D8C 0%, #3F507A 100%)",
               borderRadius: "12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 12px auto",
-              boxShadow: "0 0 20px rgba(37, 99, 235, 0.4)",
+              boxShadow: "0 2px 10px rgba(75, 93, 140, 0.3)",
             }}
           >
             <Layers size={26} color="#ffffff" />
           </div>
-          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#0F172A", margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>
+          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#1F2937", margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>
             Nexus-AI Platform
           </h2>
           <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
@@ -134,16 +134,16 @@ export default function LoginPage() {
         {/* Quick Demo Credentials */}
         <div
           style={{
-            backgroundColor: "#F8FAFC",
-            border: "1px solid #E2E8F0",
+            backgroundColor: "#EEF4F8",
+            border: "1px solid #D9E2EC",
             borderRadius: "10px",
             padding: "10px 12px",
             marginBottom: "18px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "6px" }}>
-            <Sparkles size={13} color="#6366F1" />
-            <span style={{ fontSize: "11px", fontWeight: 700, color: "#475569", textTransform: "uppercase" }}>
+            <Sparkles size={13} color="#4B5D8C" />
+            <span style={{ fontSize: "11px", fontWeight: 700, color: "#4B5D8C", textTransform: "uppercase" }}>
               Quick Demo Fill
             </span>
           </div>
@@ -156,9 +156,9 @@ export default function LoginPage() {
                 padding: "5px 4px",
                 fontSize: "11px",
                 fontWeight: 600,
-                backgroundColor: "#EFF6FF",
-                color: "#2563EB",
-                border: "1px solid #BFDBFE",
+                backgroundColor: "#E8EDF7",
+                color: "#4B5D8C",
+                border: "1px solid #D9E2EC",
                 borderRadius: "6px",
                 cursor: "pointer",
               }}
@@ -174,7 +174,7 @@ export default function LoginPage() {
                 fontSize: "11px",
                 fontWeight: 600,
                 backgroundColor: "#ECFDF5",
-                color: "#059669",
+                color: "#008000",
                 border: "1px solid #A7F3D0",
                 borderRadius: "6px",
                 cursor: "pointer",
@@ -207,10 +207,11 @@ export default function LoginPage() {
           <div
             style={{
               display: "flex",
-              backgroundColor: "#F1F5F9",
+              backgroundColor: "#EEF4F8",
               borderRadius: "8px",
               padding: "3px",
               marginBottom: "16px",
+              border: "1px solid #D9E2EC",
             }}
           >
             {["STUDENT", "FACULTY", "IP_CELL"].map((r) => (
@@ -226,7 +227,7 @@ export default function LoginPage() {
                   border: "none",
                   borderRadius: "6px",
                   backgroundColor: role === r ? "#FFFFFF" : "transparent",
-                  color: role === r ? "#2563EB" : "#64748B",
+                  color: role === r ? "#4B5D8C" : "#64748B",
                   boxShadow: role === r ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
                   cursor: "pointer",
                 }}
@@ -257,7 +258,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {isSignUp && (
             <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#475569", marginBottom: "4px" }}>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "4px" }}>
                 Full Name
               </label>
               <div style={{ position: "relative" }}>
@@ -273,6 +274,8 @@ export default function LoginPage() {
                     padding: "9px 10px 9px 34px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -282,7 +285,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#475569", marginBottom: "4px" }}>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "4px" }}>
               Campus Email Address
             </label>
             <div style={{ position: "relative" }}>
@@ -298,6 +301,8 @@ export default function LoginPage() {
                   padding: "9px 10px 9px 34px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "13px",
                   boxSizing: "border-box",
                 }}
@@ -306,7 +311,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#475569", marginBottom: "4px" }}>
+            <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "4px" }}>
               Password
             </label>
             <div style={{ position: "relative" }}>
@@ -322,6 +327,8 @@ export default function LoginPage() {
                   padding: "9px 10px 9px 34px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "13px",
                   boxSizing: "border-box",
                 }}
@@ -331,7 +338,7 @@ export default function LoginPage() {
 
           {isSignUp && (
             <div>
-              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#475569", marginBottom: "4px" }}>
+              <label style={{ display: "block", fontSize: "12px", fontWeight: 600, color: "#1F2937", marginBottom: "4px" }}>
                 Department
               </label>
               <div style={{ position: "relative" }}>
@@ -344,16 +351,18 @@ export default function LoginPage() {
                     padding: "9px 10px 9px 34px",
                     borderRadius: "8px",
                     border: "1px solid #CBD5E1",
+                    backgroundColor: "#F8FAFC",
+                    color: "#1F2937",
                     fontSize: "13px",
                     boxSizing: "border-box",
-                    backgroundColor: "#FFFFFF",
                   }}
                 >
-                  <option value="Computer Science & Engineering">Computer Science &amp; Engineering</option>
-                  <option value="AI & Data Science">AI &amp; Data Science</option>
-                  <option value="Electrical & Electronics">Electrical &amp; Electronics</option>
-                  <option value="Biotechnology & Bioengineering">Biotechnology &amp; Bioengineering</option>
-                  <option value="Institutional IP Cell & Tech Transfer">Institutional IP Cell &amp; Tech Transfer</option>
+                  <option value="CSE">CSE (Computer Science &amp; Engineering)</option>
+                  <option value="AI&DS">AI&amp;DS (AI &amp; Data Science)</option>
+                  <option value="AI&ML">AI&amp;ML (AI &amp; Machine Learning)</option>
+                  <option value="ECE">ECE (Electronics &amp; Communication)</option>
+                  <option value="EEE">EEE (Electrical &amp; Electronics)</option>
+                  <option value="IP Cell">IP Cell</option>
                 </select>
               </div>
             </div>
@@ -367,12 +376,12 @@ export default function LoginPage() {
               padding: "10px",
               borderRadius: "8px",
               border: "none",
-              background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
+              background: "linear-gradient(135deg, #4B5D8C 0%, #3F507A 100%)",
               color: "#FFFFFF",
               fontSize: "14px",
               fontWeight: 600,
               cursor: loading ? "not-allowed" : "pointer",
-              boxShadow: "0 4px 10px rgba(37, 99, 235, 0.3)",
+              boxShadow: "0 4px 10px rgba(75, 93, 140, 0.25)",
               marginTop: "6px",
             }}
           >
@@ -389,7 +398,7 @@ export default function LoginPage() {
             style={{
               background: "none",
               border: "none",
-              color: "#2563EB",
+              color: "#4B5D8C",
               fontWeight: 600,
               cursor: "pointer",
               padding: 0,

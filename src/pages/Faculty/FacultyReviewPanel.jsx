@@ -7,6 +7,55 @@ import { Search, Filter, Download, CheckCircle, AlertTriangle, ShieldCheck, XCir
 import axios from "axios";
 import { formatDate } from "../../utils/formatDate";
 
+const getShortDept = (dept) => {
+  if (!dept) return "";
+  const map = {
+    "Computer Science & Engineering": "CSE",
+    "Computer Science and Engineering": "CSE",
+    "Artificial Intelligence & Data Science": "AI&DS",
+    "AI & Data Science": "AI&DS",
+    "Artificial Intelligence & Machine Learning": "AI&ML",
+    "AI & Machine Learning": "AI&ML",
+    "Electronics & Communication Engineering": "ECE",
+    "Electronics and Communication Engineering": "ECE",
+    "Electrical & Electronics Engineering": "EEE",
+    "Electrical & Electronics": "EEE",
+    "Information Technology": "IT",
+    "Mechanical Engineering": "ME",
+  };
+  return map[dept] || dept;
+};
+
+const getStatusBadge = (status) => {
+  const s = (status || "").toUpperCase();
+  const map = {
+    SUBMITTED: { bg: "#2563EB", label: "Submitted" },
+    UNDER_REVIEW: { bg: "#D97706", label: "In Evaluation" },
+    REVISION_REQUESTED: { bg: "#EA580C", label: "Revision Needed" },
+    APPROVED: { bg: "#008000", label: "Approved" },
+    READY_FOR_IP: { bg: "#4F46E5", label: "Patent Eligible" },
+    IP_FILED: { bg: "#0284C7", label: "Patent Filed" },
+    REJECTED: { bg: "#FF4D4D", label: "Rejected" },
+  };
+  const b = map[s] || map.SUBMITTED;
+  return (
+    <span
+      style={{
+        backgroundColor: b.bg,
+        color: "#FFFFFF",
+        padding: "5px 18px",
+        borderRadius: "9999px",
+        fontSize: "12px",
+        fontWeight: 600,
+        display: "inline-block",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.08)",
+      }}
+    >
+      {b.label}
+    </span>
+  );
+};
+
 export default function FacultyReviewPanel() {
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
@@ -89,13 +138,13 @@ export default function FacultyReviewPanel() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F8FAFC", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F9FC", display: "flex", flexDirection: "column", fontFamily: "'Poppins', sans-serif" }}>
       <Navbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <main style={{ flex: 1, padding: "28px 36px", minWidth: 0 }}>
+        <main style={{ flex: 1, padding: "24px 28px", minWidth: 0 }}>
           <div style={{ marginBottom: "24px" }}>
-            <h2 style={{ margin: "0 0 4px 0", fontSize: "24px", fontWeight: 800, color: "#0F172A" }}>
+            <h2 style={{ margin: "0 0 4px 0", fontSize: "24px", fontWeight: 800, color: "#1F2937" }}>
               Faculty Proposal Review &amp; Evaluation Panel
             </h2>
             <p style={{ margin: 0, fontSize: "14px", color: "#64748B" }}>
@@ -116,6 +165,8 @@ export default function FacultyReviewPanel() {
                   padding: "10px 12px 10px 40px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "14px",
                   boxSizing: "border-box",
                 }}
@@ -130,23 +181,24 @@ export default function FacultyReviewPanel() {
                   padding: "10px 14px",
                   borderRadius: "8px",
                   border: "1px solid #CBD5E1",
+                  backgroundColor: "#F8FAFC",
+                  color: "#1F2937",
                   fontSize: "14px",
-                  backgroundColor: "#FFFFFF",
                 }}
               >
                 <option value="ALL">All Statuses</option>
                 <option value="SUBMITTED">Submitted</option>
-                <option value="UNDER_REVIEW">Under Review</option>
-                <option value="REVISION_REQUESTED">Revision Requested</option>
-                <option value="APPROVED">Approved</option>
-                <option value="READY_FOR_IP">Ready for IP Filing</option>
+                <option value="UNDER_REVIEW">In Evaluation</option>
+                <option value="REVISION_REQUESTED">Revision Needed</option>
+                <option value="APPROVED">Proposal Approved</option>
+                <option value="READY_FOR_IP">Patent Eligible</option>
               </select>
             </div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "24px" }}>
-            <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "20px" }}>
-              <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 700, color: "#0F172A" }}>
+            <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #D9E2EC", padding: "20px" }}>
+              <h3 style={{ margin: "0 0 16px 0", fontSize: "16px", fontWeight: 700, color: "#1F2937" }}>
                 Pending Proposals ({filteredProjects.length})
               </h3>
               {loading ? (
@@ -164,62 +216,63 @@ export default function FacultyReviewPanel() {
                       style={{
                         padding: "16px",
                         borderRadius: "10px",
-                        border: selectedProject?.id === p.id ? "2px solid #2563EB" : "1px solid #E2E8F0",
-                        backgroundColor: selectedProject?.id === p.id ? "#EFF6FF" : "#FFFFFF",
+                        border: selectedProject?.id === p.id ? "2px solid #4B5D8C" : "1px solid #D9E2EC",
+                        backgroundColor: selectedProject?.id === p.id ? "#E8EDF7" : "#FFFFFF",
                         cursor: "pointer",
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#2563EB" }}>
-                          Student: {p.studentName || "Student Researcher"}
+                        <span style={{ fontSize: "12px", fontWeight: 700, color: "#4B5D8C" }}>
+                          Student: {p.studentName || p.student_name || "Student Researcher"}
                         </span>
-                        <span style={{ fontSize: "11px", color: "#94A3B8" }}>{p.department || "N/A"}</span>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748B", backgroundColor: "#EEF4F8", padding: "2px 8px", borderRadius: "4px" }}>
+                          {getShortDept(p.department)}
+                        </span>
                       </div>
-                      <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 700, color: "#0F172A" }}>
+                      <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 700, color: "#1F2937" }}>
                         {p.title}
                       </h4>
-                      <div style={{ fontSize: "11px", color: "#64748B" }}>Status: {p.status}</div>
+                      <div style={{ marginTop: "4px" }}>{getStatusBadge(p.status)}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #E2E8F0", padding: "24px" }}>
+            <div style={{ backgroundColor: "#FFFFFF", borderRadius: "12px", border: "1px solid #D9E2EC", padding: "24px" }}>
               {selectedProject ? (
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
                     <div>
-                      <span style={{ fontSize: "12px", fontWeight: 700, color: "#2563EB" }}>
+                      <span style={{ fontSize: "12px", fontWeight: 700, color: "#4B5D8C" }}>
                         {selectedProject.domain}
                       </span>
-                      <h3 style={{ margin: "4px 0 2px 0", fontSize: "18px", fontWeight: 800, color: "#0F172A" }}>
+                      <h3 style={{ margin: "4px 0 2px 0", fontSize: "18px", fontWeight: 800, color: "#1F2937" }}>
                         {selectedProject.title}
                       </h3>
                       <span style={{ fontSize: "12px", color: "#64748B" }}>
-                        Submitted by: <strong>{selectedProject.studentName || "Unknown"}</strong> ({selectedProject.department || "N/A"})
+                        Submitted by: <strong>{selectedProject.studentName || selectedProject.student_name || "Unknown"}</strong> • <span style={{ fontWeight: 700, color: "#4B5D8C", backgroundColor: "#E8EDF7", padding: "2px 6px", borderRadius: "4px" }}>{getShortDept(selectedProject.department)}</span>
                       </span>
                     </div>
                   </div>
 
                   <MilestoneTimeline status={selectedProject.status} />
 
-                  <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "8px", border: "1px solid #E2E8F0", marginBottom: "20px" }}>
-                    <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", fontWeight: 700, color: "#334155" }}>
+                  <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "8px", border: "1px solid #D9E2EC", marginBottom: "20px" }}>
+                    <h4 style={{ margin: "0 0 6px 0", fontSize: "13px", fontWeight: 700, color: "#1F2937" }}>
                       Abstract &amp; Novelty Claims
                     </h4>
-                    <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 12px 0", lineHeight: 1.5 }}>
-                      {selectedProject.abstractText || "No abstract provided."}
+                    <p style={{ fontSize: "13px", color: "#64748B", margin: "0 0 12px 0", lineHeight: 1.5 }}>
+                      {selectedProject.abstractText || selectedProject.abstract_text || "No abstract provided."}
                     </p>
 
                     {/* AI Insights Card */}
                     {selectedProject.summary && (
                       <div
-                        className="border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.15)] bg-purple-900/10 rounded-lg p-4"
                         style={{
-                          border: "1px solid rgba(168, 85, 247, 0.5)",
-                          boxShadow: "0 0 15px rgba(168, 85, 247, 0.15)",
-                          backgroundColor: "rgba(88, 28, 135, 0.1)",
+                          border: "1px solid #D9E2EC",
+                          boxShadow: "0 2px 8px rgba(75, 93, 140, 0.08)",
+                          backgroundColor: "#E8EDF7",
                           borderRadius: "8px",
                           padding: "16px",
                           marginBottom: "12px",
@@ -233,18 +286,19 @@ export default function FacultyReviewPanel() {
                             right: "8px",
                             fontSize: "11px",
                             fontWeight: "bold",
-                            color: "#7E22CE",
-                            backgroundColor: "#F3E8FF",
+                            color: "#4B5D8C",
+                            backgroundColor: "#FFFFFF",
                             padding: "2px 8px",
-                            borderRadius: "9999px"
+                            borderRadius: "9999px",
+                            border: "1px solid #D9E2EC"
                           }}
                         >
                           ✨ AI Generated
                         </span>
-                        <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 700, color: "#6B21A8", display: "flex", alignItems: "center", gap: "6px" }}>
-                          <Sparkles size={16} color="#A855F7" /> AI Insights
+                        <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 700, color: "#4B5D8C", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <Sparkles size={16} color="#4B5D8C" /> AI Insights
                         </h4>
-                        <p style={{ fontSize: "13px", color: "#334155", lineHeight: 1.5, margin: 0 }}>
+                        <p style={{ fontSize: "13px", color: "#1F2937", lineHeight: 1.5, margin: 0 }}>
                           {selectedProject.summary}
                         </p>
                       </div>
@@ -256,14 +310,14 @@ export default function FacultyReviewPanel() {
                       })()}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#2563EB", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
+                      style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#4B5D8C", fontSize: "13px", fontWeight: 600, textDecoration: "none" }}
                     >
                       <Download size={15} /> View Full PDF Proposal
                     </a>
                   </div>
 
                   <div style={{ marginBottom: "24px" }}>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#0F172A", marginBottom: "8px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: 700, color: "#1F2937", marginBottom: "8px" }}>
                       Input Constructive Evaluation Feedback
                     </label>
                     <textarea
@@ -276,6 +330,8 @@ export default function FacultyReviewPanel() {
                         padding: "10px 12px",
                         borderRadius: "8px",
                         border: "1px solid #CBD5E1",
+                        backgroundColor: "#F8FAFC",
+                        color: "#1F2937",
                         fontSize: "13px",
                         boxSizing: "border-box",
                         resize: "vertical",
@@ -288,9 +344,9 @@ export default function FacultyReviewPanel() {
                       onClick={() => handleReviewAction("APPROVED")}
                       disabled={submittingReview}
                       style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        backgroundColor: "#059669",
+                        padding: "10px 18px",
+                        borderRadius: "9999px",
+                        backgroundColor: "#008000",
                         color: "#FFFFFF",
                         fontWeight: 600,
                         fontSize: "13px",
@@ -300,6 +356,7 @@ export default function FacultyReviewPanel() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
+                        boxShadow: "0 2px 4px rgba(0, 128, 0, 0.2)",
                       }}
                     >
                       <CheckCircle size={16} /> Approve Proposal
@@ -309,9 +366,9 @@ export default function FacultyReviewPanel() {
                       onClick={() => handleReviewAction("READY_FOR_IP")}
                       disabled={submittingReview}
                       style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        backgroundColor: "#2563EB",
+                        padding: "10px 18px",
+                        borderRadius: "9999px",
+                        backgroundColor: "#4F46E5",
                         color: "#FFFFFF",
                         fontWeight: 600,
                         fontSize: "13px",
@@ -321,6 +378,7 @@ export default function FacultyReviewPanel() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
+                        boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
                       }}
                     >
                       <ShieldCheck size={16} /> Mark Ready for IP Filing
@@ -330,9 +388,9 @@ export default function FacultyReviewPanel() {
                       onClick={() => handleReviewAction("REVISION_REQUESTED")}
                       disabled={submittingReview}
                       style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        backgroundColor: "#D97706",
+                        padding: "10px 18px",
+                        borderRadius: "9999px",
+                        backgroundColor: "#EA580C",
                         color: "#FFFFFF",
                         fontWeight: 600,
                         fontSize: "13px",
@@ -342,6 +400,7 @@ export default function FacultyReviewPanel() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
+                        boxShadow: "0 2px 4px rgba(234, 88, 12, 0.2)",
                       }}
                     >
                       <AlertTriangle size={16} /> Request Revisions
@@ -351,9 +410,9 @@ export default function FacultyReviewPanel() {
                       onClick={() => handleReviewAction("REJECTED")}
                       disabled={submittingReview}
                       style={{
-                        padding: "10px",
-                        borderRadius: "8px",
-                        backgroundColor: "#DC2626",
+                        padding: "10px 18px",
+                        borderRadius: "9999px",
+                        backgroundColor: "#FF4D4D",
                         color: "#FFFFFF",
                         fontWeight: 600,
                         fontSize: "13px",
@@ -363,6 +422,7 @@ export default function FacultyReviewPanel() {
                         alignItems: "center",
                         justifyContent: "center",
                         gap: "6px",
+                        boxShadow: "0 2px 4px rgba(255, 77, 77, 0.2)",
                       }}
                     >
                       <XCircle size={16} /> Reject Proposal
@@ -370,18 +430,18 @@ export default function FacultyReviewPanel() {
                   </div>
 
                   {reviewsLog.length > 0 && (
-                    <div style={{ borderTop: "1px solid #F1F5F9", paddingTop: "16px" }}>
-                      <h4 style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "#334155" }}>
+                    <div style={{ borderTop: "1px solid #D9E2EC", paddingTop: "16px" }}>
+                      <h4 style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "#1F2937" }}>
                         Evaluation History &amp; Feedback Logs
                       </h4>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {reviewsLog.map((rev) => (
-                          <div key={rev.id} style={{ backgroundColor: "#F8FAFC", padding: "10px 12px", borderRadius: "6px", fontSize: "12px" }}>
+                          <div key={rev.id} style={{ backgroundColor: "#F8FAFC", border: "1px solid #D9E2EC", padding: "10px 12px", borderRadius: "6px", fontSize: "12px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginBottom: "4px" }}>
-                              <strong>{rev.facultyName || "Faculty Mentor"}</strong>
-                              <span>{formatDate(rev.reviewedAt)}</span>
+                              <strong style={{ color: "#1F2937" }}>{rev.facultyName || rev.faculty_name || "Faculty Mentor"}</strong>
+                              <span>{formatDate(rev.reviewedAt || rev.reviewed_at)}</span>
                             </div>
-                            <div style={{ color: "#1E293B" }}>{rev.feedbackText || "No feedback"}</div>
+                            <div style={{ color: "#1F2937" }}>{rev.feedbackText || rev.feedback_text || "No feedback"}</div>
                           </div>
                         ))}
                       </div>
