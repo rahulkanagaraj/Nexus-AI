@@ -124,7 +124,7 @@ export default function LoginPage() {
             <Layers size={26} color="#ffffff" />
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#0F172A", margin: "0 0 6px 0", letterSpacing: "-0.5px" }}>
-            InnoFlow Platform
+            Nexus-AI Platform
           </h2>
           <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
             {isSignUp ? "Register a new campus researcher profile" : "Academic Research & IP Filing Lifecycle"}
@@ -376,13 +376,13 @@ export default function LoginPage() {
               marginTop: "6px",
             }}
           >
-            {loading ? "Authenticating..." : isSignUp ? "Create InnoFlow Account" : "Access Portal"}
+            {loading ? "Authenticating..." : isSignUp ? "Create Nexus-AI Account" : "Access Portal"}
           </button>
         </form>
 
         {/* Footer Mode Switcher */}
         <div style={{ textAlign: "center", marginTop: "20px", fontSize: "12px", color: "#64748B" }}>
-          {isSignUp ? "Already registered on InnoFlow? " : "New researcher or student? "}
+          {isSignUp ? "Already registered on Nexus-AI? " : "New researcher or student? "}
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}

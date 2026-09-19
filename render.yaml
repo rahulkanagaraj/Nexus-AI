@@ -1,7 +1,7 @@
 services:
-  # 1. InnoFlow Spring Boot REST API
+  # 1. Nexus-AI Spring Boot REST API
   - type: web
-    name: innoflow-backend
+    name: nexus-ai-backend
     env: docker
     dockerfilePath: ./BackEnd/Dockerfile
     dockerContext: ./BackEnd
@@ -13,20 +13,20 @@ services:
         value: prod
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
-          name: innoflow-mysql
+          name: nexus-ai-mysql
           property: connectionString
       - key: SPRING_DATASOURCE_USERNAME
         fromDatabase:
-          name: innoflow-mysql
+          name: nexus-ai-mysql
           property: user
       - key: SPRING_DATASOURCE_PASSWORD
         fromDatabase:
-          name: innoflow-mysql
+          name: nexus-ai-mysql
           property: password
 
-  # 2. InnoFlow React Client Frontend
+  # 2. Nexus-AI React Client Frontend
   - type: web
-    name: innoflow-frontend
+    name: nexus-ai-frontend
     env: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
@@ -37,7 +37,7 @@ services:
 
 databases:
   # 3. Managed MySQL Database
-  - name: innoflow-mysql
+  - name: nexus-ai-mysql
     databaseName: campus_research_db
-    user: innoflow_user
+    user: nexus-ai_user
     plan: free

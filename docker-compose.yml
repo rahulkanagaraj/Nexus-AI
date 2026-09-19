@@ -6,20 +6,20 @@ services:
   # ============================================================================
   mysql:
     image: mysql:8.0
-    container_name: innoflow-mysql
+    container_name: nexus-ai-mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_NAME:-campus_research_db}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
-      MYSQL_USER: ${DB_USER:-innoflow_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-innoflow_password}
+      MYSQL_USER: ${DB_USER:-nexus-ai_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-nexus-ai_password}
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./BackEnd/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     networks:
-      - innoflow-network
+      - nexus-ai-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
       interval: 10s
@@ -28,13 +28,13 @@ services:
       start_period: 30s
 
   # ============================================================================
-  # 2. InnoFlow Spring Boot REST API Backend
+  # 2. Nexus-AI Spring Boot REST API Backend
   # ============================================================================
   backend:
     build:
       context: ./BackEnd
       dockerfile: Dockerfile
-    container_name: innoflow-backend
+    container_name: nexus-ai-backend
     restart: unless-stopped
     depends_on:
       mysql:
@@ -42,34 +42,34 @@ services:
     environment:
       PORT: 8080
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME:-campus_research_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-innoflow_user}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-innoflow_password}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-nexus-ai_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-nexus-ai_password}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     ports:
       - "8080:8080"
     volumes:
       - uploads_data:/app/uploads
     networks:
-      - innoflow-network
+      - nexus-ai-network
 
   # ============================================================================
-  # 3. InnoFlow React Client Frontend
+  # 3. Nexus-AI React Client Frontend
   # ============================================================================
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: innoflow-frontend
+    container_name: nexus-ai-frontend
     restart: unless-stopped
     depends_on:
       - backend
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     networks:
-      - innoflow-network
+      - nexus-ai-network
 
 networks:
-  innoflow-network:
+  nexus-ai-network:
     driver: bridge
 
 volumes:

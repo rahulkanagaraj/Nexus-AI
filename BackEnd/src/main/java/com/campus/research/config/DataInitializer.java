@@ -38,16 +38,15 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // Ensure IP Cell officer exists even if DB was already seeded with older accounts
-        if (userRepository.findByEmailIgnoreCase("ipcell@campus.edu").isEmpty()) {
-            userRepository.save(new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", "admin123", User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now()));
-        }
-
-        if (userRepository.count() > 1) {
+        if (userRepository.count() > 0) {
+            // Ensure IP Cell officer exists even if DB was already seeded with older accounts
+            if (userRepository.findByEmailIgnoreCase("ipcell@campus.edu").isEmpty()) {
+                userRepository.save(new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", "admin123", User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now()));
+            }
             return; // Core users already initialized
         }
 
-        System.out.println("Initializing InnoFlow Seed Data for Academic Research & IP Management...");
+        System.out.println("Initializing Nexus-AI Seed Data for Academic Research & IP Management...");
 
         // 1. Seed Users
         User u1 = new User(null, "Alex Johnson", "alex.student@campus.edu", "student123", User.Role.STUDENT, "Computer Science & Engineering", LocalDateTime.now());
@@ -151,6 +150,6 @@ public class DataInitializer implements ApplicationRunner {
         );
         ipFilingRepository.save(ip1);
 
-        System.out.println("InnoFlow Seed Data successfully initialized.");
+        System.out.println("Nexus-AI Seed Data successfully initialized.");
     }
 }

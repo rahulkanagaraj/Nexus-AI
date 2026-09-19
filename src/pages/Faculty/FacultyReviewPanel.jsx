@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 import MilestoneTimeline from "../../components/MilestoneTimeline";
-import { Search, Filter, Download, CheckCircle, AlertTriangle, ShieldCheck, XCircle } from "lucide-react";
+import { Search, Filter, Download, CheckCircle, AlertTriangle, ShieldCheck, XCircle, Sparkles } from "lucide-react";
 import axios from "axios";
 
 export default function FacultyReviewPanel() {
@@ -210,6 +210,44 @@ export default function FacultyReviewPanel() {
                     <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 12px 0", lineHeight: 1.5 }}>
                       {selectedProject.abstractText || selectedProject.abstract_text}
                     </p>
+
+                    {/* AI Insights Card */}
+                    {selectedProject.summary && (
+                      <div
+                        className="border border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.15)] bg-purple-900/10 rounded-lg p-4"
+                        style={{
+                          border: "1px solid rgba(168, 85, 247, 0.5)",
+                          boxShadow: "0 0 15px rgba(168, 85, 247, 0.15)",
+                          backgroundColor: "rgba(88, 28, 135, 0.1)",
+                          borderRadius: "8px",
+                          padding: "16px",
+                          marginBottom: "12px",
+                          position: "relative"
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: "8px",
+                            right: "8px",
+                            fontSize: "11px",
+                            fontWeight: "bold",
+                            color: "#7E22CE",
+                            backgroundColor: "#F3E8FF",
+                            padding: "2px 8px",
+                            borderRadius: "9999px"
+                          }}
+                        >
+                          ✨ AI Generated
+                        </span>
+                        <h4 style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: 700, color: "#6B21A8", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <Sparkles size={16} color="#A855F7" /> AI Insights
+                        </h4>
+                        <p style={{ fontSize: "13px", color: "#334155", lineHeight: 1.5, margin: 0 }}>
+                          {selectedProject.summary}
+                        </p>
+                      </div>
+                    )}
                     <a
                       href={(() => {
                         const url = selectedProject.fileUrl || selectedProject.file_url || "/uploads/default_abstract.pdf";

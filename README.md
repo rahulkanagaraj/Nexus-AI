@@ -1,118 +1,131 @@
-# InnoFlow – Academic Research & IP Filing Lifecycle Platform 🔬🎓
+# Nexus-AI
 
-> **A centralized full-stack platform to digitize, automate, and govern the entire academic research lifecycle—from student proposal submissions and mentor evaluations to milestone tracking, document archiving, and collaborative IP patent filings.**
+Campus research proposal + IP-filing web app. A student submits a project (optional PDF upload), faculty records a review, and an IP Cell user tracks filings. There is **no PDF text extraction, no Ollama, and no AI summarization** in this repo.
 
 ---
 
-## 🏗️ Architecture Overview
+## What actually works
+
+| Area | Reality |
+|---|---|
+| Student project create | `POST /api/projects` multipart: title, abstract, department, domain, studentId, facultyId, optional `proposalFile`. File is copied to a local `uploads/` folder. Path is stored on `projects.file_url` / `file_name` and a `proposals` row with **version always set to 1**. |
+| List / get projects | `GET /api/projects`, `GET /api/projects/{id}`. Faculty list is **all projects**, not assigned-mentor only. |
+| Faculty review | `POST /api/reviews`. Status `APPROVED` / `REVISION_REQUESTED` / `READY_FOR_IP` / `UNDER_REVIEW` / `REJECTED` updates the project and appends a milestone. `READY_FOR_IP` creates a drafted `ip_filings` row if none exists. |
+| Milestone history | `GET /api/projects/{id}/milestones` — append-only log. UI stepper is derived from project `status`. |
+| IP tracker | `GET/POST/PUT/DELETE /api/ip-filings`, `GET /api/ip-filings/stats`. Root React app can filter type/status and export CSV **in the browser**. |
+| Auth | `POST /api/auth/login`, `/register`, `GET /api/auth/users`, `/mentors`. Passwords stored **plaintext**. Login accepts hardcoded demo passwords. Token is the string `jwt-token-campus-{id}` — **not a real JWT**. Spring Security **permitAll** on every route. Frontend `ProtectedRoute` is the only “RBAC”. |
+| File download | `GET /uploads/{fileName}` streams from disk as an attachment. Seeded projects point at sample URLs that are **not** shipped as files. |
+| UI | Repo-root React 19 + Vite 6 (`src/`). Login, student dashboard, faculty panel, IP tracker. Login page has **Quick Demo Fill** buttons. Navbar does **not** switch personas. Mentor dropdown is two hardcoded faculty IDs. Faculty search uses `student_name` while the API returns `studentName`. |
+
+---
+
+## Repo layout (do not mix these up)
 
 ```
-                 +-------------------------------------------------------------+
-                 |                     InnoFlow Web Client                     |
-                 |  - Student Workspace   - Mentor Review Panel                |
-                 |  - IP Cell Collaborative Tracker  - Instant Demo Switcher   |
-                 +-------------------------------------------------------------+
-                                               | (RESTful APIs + JSON)
-                                               v
-                 +-------------------------------------------------------------+
-                 |               Java Spring Boot 3.2.3 Backend                |
-                 |  - Strict RBAC: Student, Faculty, IP_Cell, Admin            |
-                 |  - Automated Milestone Engine (Auto-Triggers IP Filing)     |
-                 |  - File Storage Engine & Document Versioning                |
-                 |  - Spring Data JPA Repositories                             |
-                 +-------------------------------------------------------------+
-                                               | (Hibernate / JPA)
-                                               v
-                 +-------------------------------------------------------------+
-                 |                     MySQL 8.x Database                      |
-                 |  - users, projects, proposals, milestones, reviews, filings |
-                 |  - Auto-seeded with realistic campus research portfolios    |
-                 +-------------------------------------------------------------+
+src/                    Canonical React app (Docker + `npm run dev` use this)
+FrontEnd/D_C/           Older duplicate UI (no IP_CELL routing, no Vite proxy, thinner IP page)
+BackEnd/src/main/java   Spring Boot 3.2.3 API (this is the backend you should run)
+BackEnd/server.js       Leftover Express + mysql2 + multer API — not used by Docker
+BackEnd/schema.sql      Manual MySQL script (lags JPA entities; see notes below)
 ```
 
 ---
 
-## ✨ Core Features & Capabilities
+## Stack
 
-### 🛡️ 1. Strict Role-Based Access Control (RBAC)
-- Distinct portals and workflows for **Student Researchers**, **Faculty Mentors**, and **Institutional IP Cell Officers**.
-- Built-in **Demo Quick Switcher** in the top navigation bar to toggle between personas instantly during demonstrations.
-
-### 🎓 2. Student Researcher Workspace
-- **Initiate Projects**: Submit research title, domain, department, abstract objectives, and mentor selection.
-- **Document Archiving**: Upload PDF abstracts and proposal attachments with automatic version tracking.
-- **Visual Milestone Stepper**: Real-time progress bar tracking project evolution:
-  $$\text{Proposal Submitted} \longrightarrow \text{Faculty Evaluation} \longrightarrow \text{Approved / Revision} \longrightarrow \text{Ready for IP} \longrightarrow \text{Patent Granted}$$
-- **Centralized Feedback History**: View mentor evaluation notes, suggestions, and timestamped reviews.
-
-### 👨‍🏫 3. Faculty & Mentor Review Panel
-- **Proposal Queue**: Filter by department and domain or search by student name.
-- **Interactive Review Modal**: Read abstracts, preview/download PDF attachments, and write structured feedback.
-- **Decision Engine**:
-  - `Approved`: Marks milestone completed.
-  - `Revision Requested`: Flags required modifications.
-  - `Ready for IP Filing`: **Automatically triggers** an IP filing asset in the collaborative IP tracker.
-
-### 🏛️ 4. Institutional IP Cell Collaborative Tracker
-- **Permanent Searchable Repository**: Filter by IP category (*Patent, Copyright, Trade Secret, Industrial Design*) and lifecycle status (*Drafted, Filed, Under Examination, Granted*).
-- **Application Lifecycle Management**: Assign and track official application numbers, filing dates, co-inventors, and examiner notes.
-- **Portfolio Analytics**: Live KPI metrics for granted patents, active examinations, and drafting queues.
-- **Audit Export**: 1-click export of the complete IP catalog to CSV for institutional reporting.
+| Layer | In use |
+|---|---|
+| Frontend | React 19, Vite 6, axios, lucide-react, inline CSS. Inter is loaded from Google Fonts. `@mui/*` and Firebase are in `package.json` and **unused** in `src/`. |
+| Backend | Java 17, Spring Boot 3.2.3, Spring Data JPA, Hibernate `ddl-auto=update`. |
+| DB | MySQL 8 via Docker / `application.properties`. Profile `dev` uses **in-memory H2**, not MySQL. |
+| Containers | `docker-compose.yml`: mysql, Spring Boot, Nginx-served frontend. |
 
 ---
 
-## 🛠️ Technology Stack
+## API map
 
-| Layer | Technology | Details |
+| Method | Path | Notes |
 |---|---|---|
-| **Frontend** | React 19, Vite 6 | Lucide Icons, Material UI, Google Fonts (Inter) |
-| **Backend** | Java 17+, Spring Boot 3.2.3 | Spring Data JPA, Spring Security, Hibernate |
-| **Database** | MySQL 8.x | Auto-migrated schema with comprehensive relations |
-| **DevOps** | Docker, Docker Compose, Nginx | Multi-stage production builds, healthchecks |
+| POST | `/api/auth/login` | Email + password; ignores Spring Security |
+| POST | `/api/auth/register` | Stores password as `passwordHash` without hashing |
+| GET | `/api/auth/users` | Unauthenticated dump of all users |
+| GET | `/api/auth/mentors` | Faculty users; **frontend never calls this** |
+| GET | `/api/projects` | Optional `role`, `userId` (student filter only) |
+| GET | `/api/projects/{id}` | |
+| POST | `/api/projects` | Multipart create + disk store |
+| POST | `/api/reviews` | Review + status/milestone (+ auto IP on `READY_FOR_IP`) |
+| GET | `/api/projects/{id}/reviews` | |
+| GET | `/api/projects/{id}/milestones` | |
+| GET/POST | `/api/ip-filings` | |
+| GET | `/api/ip-filings/{id}` | |
+| GET | `/api/ip-filings/stats` | Counts by filing status |
+| PUT/DELETE | `/api/ip-filings/{id}` | |
+| GET | `/uploads/{fileName}` | Download stored file |
+
+There is **no** `/api/summarize`, Ollama client, or PDF parse endpoint.
 
 ---
 
-## ⚡ Quickstart Guide
+## Data model (JPA)
 
-### Option 1: Docker Compose (Full Stack with MySQL)
+Tables Hibernate will create/update: `users`, `projects`, `proposals`, `milestones`, `reviews`, `ip_filings`.
+
+User roles in Java: `STUDENT`, `FACULTY`, `IP_CELL`, `ADMIN`.  
+`BackEnd/schema.sql` ENUM is only `STUDENT`, `FACULTY`, `ADMIN` and **does not** include `projects.file_name` / `file_url` or denormalized IP title fields. Rely on JPA `ddl-auto=update` if you use MySQL, or you will fight the SQL script.
+
+---
+
+## How to run
+
+### Docker (MySQL + API + UI)
+
 ```bash
-# 1. Copy environment template
 cp .env.example .env
-
-# 2. Build and start containers
 docker-compose up -d --build
-
-# 3. Access applications
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:8080/api/projects
 ```
 
-### Option 2: Standalone Local Development
+- UI: http://localhost:3000  
+- API: http://localhost:8080  
+
+### Local (H2, no MySQL)
+
 ```powershell
-# 1. Start Spring Boot Backend (with zero-config dev profile)
 cd BackEnd
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
-
-# 2. In another terminal, start React Frontend
-npm install
-npm run dev -- --port 3000
+mvn spring-boot:run "-Dspring-boot.run.profiles=dev"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+```powershell
+npm install
+npm run dev
+```
+
+Vite (root `vite.config.js`) proxies `/api` and `/uploads` to `http://localhost:8080`. Do **not** start `FrontEnd/D_C` unless you add a proxy yourself.
 
 ---
 
-## 👥 Pre-Seeded Demo Accounts
+## Seeded accounts
 
-| Role | Name | Email | Password |
-|---|---|---|---|
-| **Student** | Alex Johnson | `alex.student@campus.edu` | `student123` |
-| **Student** | Sarah Williams | `sarah.student@campus.edu` | `student123` |
-| **Faculty Mentor** | Dr. Robert Vance | `robert.faculty@campus.edu` | `faculty123` |
-| **Faculty Mentor** | Dr. Emily Carter | `emily.faculty@campus.edu` | `faculty123` |
-| **Institutional IP Cell** | IP Cell Officer | `ipcell@campus.edu` | `admin123` |
+Created by `DataInitializer` when the user table is empty (IP Cell user is also inserted if missing).
+
+| Role | Email | Password |
+|---|---|---|
+| STUDENT | alex.student@campus.edu | student123 |
+| STUDENT | sarah.student@campus.edu | student123 |
+| FACULTY | robert.faculty@campus.edu | faculty123 |
+| FACULTY | emily.faculty@campus.edu | faculty123 |
+| IP_CELL | ipcell@campus.edu | admin123 |
+| ADMIN | admin@campus.edu | admin123 |
 
 ---
 
-## 📄 Complete Documentation
-For cloud deployment blueprints (Render.com, Railway, AWS ECS) and configuration guidelines, see [DEPLOYMENT.md](file:///d:/IQOOHack/S5-Mini_project/DEPLOYMENT.md).
+## Not in this codebase (despite older README / product copy)
+
+- AI / Ollama / PDF text extraction / stored summaries  
+- Strict server-side RBAC or JWT  
+- Automatic document versioning  
+- Navbar “demo persona switcher”  
+- Faculty filters by department/domain  
+- In-browser PDF preview (download-as-attachment only)  
+- Mentor list loaded from the API  
+
+Deployment notes: [DEPLOYMENT.md](./DEPLOYMENT.md).

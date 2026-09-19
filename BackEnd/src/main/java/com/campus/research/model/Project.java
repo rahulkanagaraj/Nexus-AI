@@ -41,6 +41,13 @@ public class Project {
     private String fileName;
     private String fileUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String extractedText;
+
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -88,6 +95,12 @@ public class Project {
 
     public String getFileUrl() { return fileUrl; }
     public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+
+    public String getSummary() { return summary; }
+    public void setSummary(String summary) { this.summary = summary; }
+
+    public String getExtractedText() { return extractedText; }
+    public void setExtractedText(String extractedText) { this.extractedText = extractedText; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

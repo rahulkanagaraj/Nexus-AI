@@ -1,10 +1,8 @@
 package com.campus.research.service;
 
-import com.campus.research.model.MilestoneHistory;
 import com.campus.research.model.Project;
 import com.campus.research.model.ProposalDocument;
 import com.campus.research.model.User;
-import com.campus.research.repository.MilestoneRepository;
 import com.campus.research.repository.ProjectRepository;
 import com.campus.research.repository.ProposalDocumentRepository;
 import com.campus.research.repository.UserRepository;
@@ -24,19 +22,25 @@ public class ProjectService {
     private final ProposalDocumentRepository proposalDocumentRepository;
     private final MilestoneService milestoneService;
     private final FileStorageService fileStorageService;
+    private final PdfTextExtractionService pdfTextExtractionService;
+    private final OllamaSummarizationService ollamaSummarizationService;
 
     public ProjectService(
             ProjectRepository projectRepository,
             UserRepository userRepository,
             ProposalDocumentRepository proposalDocumentRepository,
             MilestoneService milestoneService,
-            FileStorageService fileStorageService
+            FileStorageService fileStorageService,
+            PdfTextExtractionService pdfTextExtractionService,
+            OllamaSummarizationService ollamaSummarizationService
     ) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.proposalDocumentRepository = proposalDocumentRepository;
         this.milestoneService = milestoneService;
         this.fileStorageService = fileStorageService;
+        this.pdfTextExtractionService = pdfTextExtractionService;
+        this.ollamaSummarizationService = ollamaSummarizationService;
     }
 
     public List<Project> getProjects(String role, Long userId) {
@@ -80,31 +84,44 @@ public class ProjectService {
             facultyOpt.ifPresent(u -> project.setFacultyName(u.getFullName()));
         }
 
-        // File upload handling
         String storedFilePath = null;
         String originalFileName = null;
+        String extractedText = null;
+        String summary = null;
+
         if (proposalFile != null && !proposalFile.isEmpty()) {
             originalFileName = proposalFile.getOriginalFilename();
             storedFilePath = fileStorageService.storeFile(proposalFile);
+
+            try {
+                extractedText = pdfTextExtractionService.extractText(storedFilePath);
+                summary = ollamaSummarizationService.summarize(extractedText);
+            } catch (Exception ex) {
+                if (summary == null) {
+                    summary = "Summarization unavailable: " + ex.getMessage();
+                }
+            }
         }
 
         project.setFileName(originalFileName != null ? originalFileName : "Research_Proposal_Abstract.pdf");
         project.setFileUrl(storedFilePath != null ? storedFilePath : "/uploads/sample_proposal.pdf");
+        project.setExtractedText(extractedText);
+        project.setSummary(summary);
         project.setCreatedAt(LocalDateTime.now());
         project.setUpdatedAt(LocalDateTime.now());
 
         Project savedProject = projectRepository.save(project);
 
-        // Record Proposal Document version
         ProposalDocument doc = new ProposalDocument();
         doc.setProjectId(savedProject.getId());
         doc.setFileName(savedProject.getFileName());
         doc.setFilePath(savedProject.getFileUrl());
         doc.setVersion(1);
+        doc.setExtractedText(extractedText);
+        doc.setSummary(summary);
         doc.setUploadedAt(LocalDateTime.now());
         proposalDocumentRepository.save(doc);
 
-        // Record initial milestone trigger
         milestoneService.recordMilestone(
                 savedProject.getId(),
                 "Proposal Submitted",

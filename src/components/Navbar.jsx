@@ -34,7 +34,7 @@ export default function Navbar() {
           boxSizing: "border-box",
         }}
       >
-        {/* InnoFlow Heading */}
+        {/* Nexus-AI Heading */}
         <div
           onClick={() => navigate("/")}
           style={{
@@ -62,7 +62,7 @@ export default function Navbar() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <span style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.5px" }}>
-                InnoFlow
+                Nexus-AI
               </span>
               <span
                 style={{

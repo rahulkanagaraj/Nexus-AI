@@ -1,5 +1,5 @@
 # ==============================================================================
-# InnoFlow React Client - Production Multi-Stage Dockerfile
+# Nexus-AI React Client - Production Multi-Stage Dockerfile
 # ==============================================================================
 
 # Stage 1: Build static assets with Node.js

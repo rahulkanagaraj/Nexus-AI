@@ -21,6 +21,13 @@ public class ProposalDocument {
 
     private Integer version = 1;
 
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String extractedText;
+
     private LocalDateTime uploadedAt = LocalDateTime.now();
 
     public ProposalDocument() {}
@@ -48,6 +55,12 @@ public class ProposalDocument {
 
     public Integer getVersion() { return version; }
     public void setVersion(Integer version) { this.version = version; }
+
+    public String getSummary() { return summary; }
+    public void setSummary(String summary) { this.summary = summary; }
+
+    public String getExtractedText() { return extractedText; }
+    public void setExtractedText(String extractedText) { this.extractedText = extractedText; }
 
     public LocalDateTime getUploadedAt() { return uploadedAt; }
     public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }

@@ -1,6 +1,6 @@
-# InnoFlow – Deployment & Infrastructure Guide
+# Nexus-AI – Deployment & Infrastructure Guide
 
-**InnoFlow** is a centralized full-stack platform to digitize and automate the entire academic research project lifecycle—from student proposal submissions and faculty evaluations to automated milestone tracking, document archiving, and collaborative IP patent filings.
+**Nexus-AI** is a centralized full-stack platform to digitize and automate the entire academic research project lifecycle—from student proposal submissions and faculty evaluations to automated milestone tracking, document archiving, and collaborative IP patent filings.
 
 ---
 
@@ -60,7 +60,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 mvn spring-boot:run
 ```
 - Backend starts at: `http://localhost:8080`
-- H2 Dev Console (when using dev profile): `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:innoflow_db`)
+- H2 Dev Console (when using dev profile): `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:nexus-ai_db`)
 
 ### 2. React Frontend:
 ```powershell
@@ -80,9 +80,9 @@ The repository includes a ready-to-deploy [render.yaml](file:///d:/IQOOHack/S5-M
 2. In the Render Dashboard, click **New +** -> **Blueprint**.
 3. Connect your GitHub repository.
 4. Render will automatically detect `render.yaml` and provision:
-   - **MySQL Database Service** (`innoflow-mysql`)
-   - **Spring Boot Web Service** (`innoflow-backend`) via `BackEnd/Dockerfile`
-   - **React Frontend Web Service** (`innoflow-frontend`) via root `Dockerfile`
+   - **MySQL Database Service** (`nexus-ai-mysql`)
+   - **Spring Boot Web Service** (`nexus-ai-backend`) via `BackEnd/Dockerfile`
+   - **React Frontend Web Service** (`nexus-ai-frontend`) via root `Dockerfile`
 5. Click **Apply** to deploy!
 
 ---

@@ -1,5 +1,5 @@
 # ==============================================================================
-# InnoFlow Spring Boot Backend - Production Multi-Stage Dockerfile
+# Nexus-AI Spring Boot Backend - Production Multi-Stage Dockerfile
 # ==============================================================================
 
 # Stage 1: Build JAR with Maven & OpenJDK 17
@@ -19,10 +19,10 @@ FROM eclipse-temurin:17-jre-alpine AS runner
 WORKDIR /app
 
 # Create non-privileged service user
-RUN addgroup -S innoflow && adduser -S innoflow -G innoflow && \
-    mkdir -p /app/uploads && chown -R innoflow:innoflow /app
+RUN addgroup -S nexus-ai && adduser -S nexus-ai -G nexus-ai && \
+    mkdir -p /app/uploads && chown -R nexus-ai:nexus-ai /app
 
-USER innoflow:innoflow
+USER nexus-ai:nexus-ai
 
 # Copy compiled jar from builder
 COPY --from=builder /build/target/*.jar app.jar
