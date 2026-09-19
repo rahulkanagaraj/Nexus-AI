@@ -6,38 +6,15 @@ services:
     dockerfilePath: ./BackEnd/Dockerfile
     dockerContext: ./BackEnd
     plan: free
+    healthCheckPath: /
     envVars:
       - key: PORT
         value: 8080
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod
       - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: nexus-ai-mysql
-          property: connectionString
+        sync: false
       - key: SPRING_DATASOURCE_USERNAME
-        fromDatabase:
-          name: nexus-ai-mysql
-          property: user
+        sync: false
       - key: SPRING_DATASOURCE_PASSWORD
-        fromDatabase:
-          name: nexus-ai-mysql
-          property: password
-
-  # 2. Nexus-AI React Client Frontend
-  - type: web
-    name: nexus-ai-frontend
-    env: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    plan: free
-    envVars:
-      - key: FRONTEND_PORT
-        value: 80
-
-databases:
-  # 3. Managed MySQL Database
-  - name: nexus-ai-mysql
-    databaseName: campus_research_db
-    user: nexus-ai_user
-    plan: free
+        sync: false
+      - key: OLLAMA_BASE_URL
+        sync: false

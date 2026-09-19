@@ -19,6 +19,7 @@ public class DataInitializer implements ApplicationRunner {
     private final MilestoneRepository milestoneRepository;
     private final ReviewRepository reviewRepository;
     private final IpFilingRepository ipFilingRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public DataInitializer(
             UserRepository userRepository,
@@ -26,7 +27,8 @@ public class DataInitializer implements ApplicationRunner {
             ProposalDocumentRepository proposalDocumentRepository,
             MilestoneRepository milestoneRepository,
             ReviewRepository reviewRepository,
-            IpFilingRepository ipFilingRepository
+            IpFilingRepository ipFilingRepository,
+            org.springframework.security.crypto.password.PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
@@ -34,6 +36,7 @@ public class DataInitializer implements ApplicationRunner {
         this.milestoneRepository = milestoneRepository;
         this.reviewRepository = reviewRepository;
         this.ipFilingRepository = ipFilingRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,7 +44,7 @@ public class DataInitializer implements ApplicationRunner {
         if (userRepository.count() > 0) {
             // Ensure IP Cell officer exists even if DB was already seeded with older accounts
             if (userRepository.findByEmailIgnoreCase("ipcell@campus.edu").isEmpty()) {
-                userRepository.save(new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", "admin123", User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now()));
+                userRepository.save(new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", passwordEncoder.encode("admin123"), User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now()));
             }
             return; // Core users already initialized
         }
@@ -49,12 +52,12 @@ public class DataInitializer implements ApplicationRunner {
         System.out.println("Initializing Nexus-AI Seed Data for Academic Research & IP Management...");
 
         // 1. Seed Users
-        User u1 = new User(null, "Alex Johnson", "alex.student@campus.edu", "student123", User.Role.STUDENT, "Computer Science & Engineering", LocalDateTime.now());
-        User u2 = new User(null, "Sarah Williams", "sarah.student@campus.edu", "student123", User.Role.STUDENT, "AI & Data Science", LocalDateTime.now());
-        User u3 = new User(null, "Dr. Robert Vance", "robert.faculty@campus.edu", "faculty123", User.Role.FACULTY, "Computer Science & Engineering", LocalDateTime.now());
-        User u4 = new User(null, "Dr. Emily Carter", "emily.faculty@campus.edu", "faculty123", User.Role.FACULTY, "AI & Data Science", LocalDateTime.now());
-        User u5 = new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", "admin123", User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now());
-        User u6 = new User(null, "Platform Administrator", "admin@campus.edu", "admin123", User.Role.ADMIN, "Research & Development", LocalDateTime.now());
+        User u1 = new User(null, "Alex Johnson", "alex.student@campus.edu", passwordEncoder.encode("student123"), User.Role.STUDENT, "Computer Science & Engineering", LocalDateTime.now());
+        User u2 = new User(null, "Sarah Williams", "sarah.student@campus.edu", passwordEncoder.encode("student123"), User.Role.STUDENT, "AI & Data Science", LocalDateTime.now());
+        User u3 = new User(null, "Dr. Robert Vance", "robert.faculty@campus.edu", passwordEncoder.encode("faculty123"), User.Role.FACULTY, "Computer Science & Engineering", LocalDateTime.now());
+        User u4 = new User(null, "Dr. Emily Carter", "emily.faculty@campus.edu", passwordEncoder.encode("faculty123"), User.Role.FACULTY, "AI & Data Science", LocalDateTime.now());
+        User u5 = new User(null, "Institutional IP Cell Officer", "ipcell@campus.edu", passwordEncoder.encode("admin123"), User.Role.IP_CELL, "Institutional IP Cell & Tech Transfer", LocalDateTime.now());
+        User u6 = new User(null, "Platform Administrator", "admin@campus.edu", passwordEncoder.encode("admin123"), User.Role.ADMIN, "Research & Development", LocalDateTime.now());
 
         userRepository.saveAll(List.of(u1, u2, u3, u4, u5, u6));
 

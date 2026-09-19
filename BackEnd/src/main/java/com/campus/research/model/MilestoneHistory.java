@@ -2,6 +2,7 @@ package com.campus.research.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "milestones")
@@ -22,6 +23,7 @@ public class MilestoneHistory {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public MilestoneHistory() {}

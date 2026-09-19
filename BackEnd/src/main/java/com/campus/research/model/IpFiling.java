@@ -3,6 +3,7 @@ package com.campus.research.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "ip_filings")
@@ -27,13 +28,16 @@ public class IpFiling {
     @Column(nullable = false)
     private FilingStatus filingStatus = FilingStatus.DRAFTED;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate filingDate;
     private String inventors;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt = LocalDateTime.now();
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public enum IpType {

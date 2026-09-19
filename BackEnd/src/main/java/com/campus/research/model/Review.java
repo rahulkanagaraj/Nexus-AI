@@ -2,6 +2,7 @@ package com.campus.research.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "reviews")
@@ -24,6 +25,7 @@ public class Review {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String feedbackText;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reviewedAt = LocalDateTime.now();
 
     public Review() {}

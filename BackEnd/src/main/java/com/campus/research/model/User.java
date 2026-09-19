@@ -2,6 +2,7 @@ package com.campus.research.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +27,7 @@ public class User {
     @Column(nullable = false)
     private String department;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Role {

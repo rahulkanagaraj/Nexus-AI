@@ -2,6 +2,7 @@ package com.campus.research.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "proposals")
@@ -28,6 +29,7 @@ public class ProposalDocument {
     @Column(columnDefinition = "LONGTEXT")
     private String extractedText;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime uploadedAt = LocalDateTime.now();
 
     public ProposalDocument() {}
