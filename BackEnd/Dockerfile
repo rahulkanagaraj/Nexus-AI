@@ -29,12 +29,12 @@ COPY --from=builder /build/target/*.jar app.jar
 
 # Environment defaults (can be overridden at runtime)
 ENV PORT=8080 \
-    SPRING_PROFILES_ACTIVE=prod \
+    SPRING_PROFILES_ACTIVE=dev \
     JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC"
 
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:8080/api/projects || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:${PORT}/api/projects || exit 1
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
