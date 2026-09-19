@@ -5,6 +5,7 @@ import Sidebar from "../../components/Sidebar";
 import MilestoneTimeline from "../../components/MilestoneTimeline";
 import { Search, Filter, Download, CheckCircle, AlertTriangle, ShieldCheck, XCircle, Sparkles } from "lucide-react";
 import axios from "axios";
+import { formatDate } from "../../utils/formatDate";
 
 export default function FacultyReviewPanel() {
   const { user } = useAuth();
@@ -82,7 +83,7 @@ export default function FacultyReviewPanel() {
   const filteredProjects = projects.filter((p) => {
     const matchesSearch =
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.student_name && p.student_name.toLowerCase().includes(searchQuery.toLowerCase()));
+      (p.studentName && p.studentName.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === "ALL" || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -170,9 +171,9 @@ export default function FacultyReviewPanel() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
                         <span style={{ fontSize: "12px", fontWeight: 700, color: "#2563EB" }}>
-                          Student: {p.studentName || p.student_name || "Student Researcher"}
+                          Student: {p.studentName || "Student Researcher"}
                         </span>
-                        <span style={{ fontSize: "11px", color: "#94A3B8" }}>{p.department}</span>
+                        <span style={{ fontSize: "11px", color: "#94A3B8" }}>{p.department || "N/A"}</span>
                       </div>
                       <h4 style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 700, color: "#0F172A" }}>
                         {p.title}
@@ -196,7 +197,7 @@ export default function FacultyReviewPanel() {
                         {selectedProject.title}
                       </h3>
                       <span style={{ fontSize: "12px", color: "#64748B" }}>
-                        Submitted by: <strong>{selectedProject.studentName || selectedProject.student_name}</strong> ({selectedProject.department})
+                        Submitted by: <strong>{selectedProject.studentName || "Unknown"}</strong> ({selectedProject.department || "N/A"})
                       </span>
                     </div>
                   </div>
@@ -208,7 +209,7 @@ export default function FacultyReviewPanel() {
                       Abstract &amp; Novelty Claims
                     </h4>
                     <p style={{ fontSize: "13px", color: "#475569", margin: "0 0 12px 0", lineHeight: 1.5 }}>
-                      {selectedProject.abstractText || selectedProject.abstract_text}
+                      {selectedProject.abstractText || "No abstract provided."}
                     </p>
 
                     {/* AI Insights Card */}
@@ -250,7 +251,7 @@ export default function FacultyReviewPanel() {
                     )}
                     <a
                       href={(() => {
-                        const url = selectedProject.fileUrl || selectedProject.file_url || "/uploads/default_abstract.pdf";
+                        const url = selectedProject.fileUrl || "/uploads/default_abstract.pdf";
                         return url.startsWith("http") ? url : `${import.meta.env.VITE_API_URL || ""}${url}`;
                       })()}
                       target="_blank"
@@ -377,10 +378,10 @@ export default function FacultyReviewPanel() {
                         {reviewsLog.map((rev) => (
                           <div key={rev.id} style={{ backgroundColor: "#F8FAFC", padding: "10px 12px", borderRadius: "6px", fontSize: "12px" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", color: "#64748B", marginBottom: "4px" }}>
-                              <strong>{rev.faculty_name}</strong>
-                              <span>{new Date(rev.reviewed_at).toLocaleDateString()}</span>
+                              <strong>{rev.facultyName || "Faculty Mentor"}</strong>
+                              <span>{formatDate(rev.reviewedAt)}</span>
                             </div>
-                            <div style={{ color: "#1E293B" }}>{rev.feedback_text}</div>
+                            <div style={{ color: "#1E293B" }}>{rev.feedbackText || "No feedback"}</div>
                           </div>
                         ))}
                       </div>

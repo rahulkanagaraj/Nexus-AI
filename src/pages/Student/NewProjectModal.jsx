@@ -8,14 +8,14 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
   const [abstractText, setAbstractText] = useState("");
   const [facultyId, setFacultyId] = useState("3");
   const [file, setFile] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
+    setIsSubmitting(true);
     setError("");
 
     try {
@@ -39,7 +39,7 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
     } catch (err) {
       setError(err.response?.data?.message || "Failed to submit research project proposal.");
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -237,9 +237,9 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={submitting}
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
               style={{
                 padding: "10px 20px",
                 borderRadius: "8px",
@@ -248,10 +248,11 @@ export default function NewProjectModal({ isOpen, onClose, onProjectCreated, stu
                 fontSize: "14px",
                 fontWeight: 600,
                 border: "none",
-                cursor: "pointer",
+                cursor: isSubmitting ? "not-allowed" : "pointer",
+                opacity: isSubmitting ? 0.7 : 1,
               }}
             >
-              {submitting ? "Submitting Proposal..." : "Submit Proposal"}
+              {isSubmitting ? '✨ Analyzing PDF with AI...' : 'Submit Project'}
             </button>
           </div>
         </form>

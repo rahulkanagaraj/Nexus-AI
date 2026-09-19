@@ -158,8 +158,8 @@ export default function StudentDashboard() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {projects.map((proj) => {
                     const isSelected = selectedProject?.id === proj.id;
-                    const abstract = proj.abstractText || proj.abstract_text;
-                    const mentor = proj.facultyName || proj.faculty_name || "Assigned Mentor";
+                    const abstract = proj.abstractText || "No abstract available";
+                    const mentor = proj.facultyName || "Assigned Mentor";
 
                     return (
                       <div
@@ -184,7 +184,7 @@ export default function StudentDashboard() {
                           {abstract}
                         </p>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#94A3B8" }}>
-                          <span>Domain: {proj.domain}</span>
+                          <span>Domain: {proj.domain || "N/A"}</span>
                           <span>Mentor: {mentor}</span>
                         </div>
                       </div>
@@ -201,7 +201,7 @@ export default function StudentDashboard() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 700, color: "#2563EB", textTransform: "uppercase" }}>
-                        {selectedProject.domain}
+                        {selectedProject.domain || "Research Domain"}
                       </span>
                       <h3 style={{ margin: "4px 0", fontSize: "17px", fontWeight: 800, color: "#0F172A" }}>
                         {selectedProject.title}
@@ -222,7 +222,7 @@ export default function StudentDashboard() {
                       Abstract Summary
                     </h4>
                     <p style={{ fontSize: "13px", color: "#475569", lineHeight: 1.5, margin: "0 0 16px 0" }}>
-                      {selectedProject.abstractText || selectedProject.abstract_text}
+                      {selectedProject.abstractText || "No abstract available"}
                     </p>
 
                     {/* AI Insights Card */}
@@ -270,12 +270,12 @@ export default function StudentDashboard() {
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <FileText size={18} color="#2563EB" />
                         <span style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B" }}>
-                          {selectedProject.fileName || selectedProject.file_name || "Proposal_Abstract.pdf"}
+                          {selectedProject.fileName || "Proposal_Abstract.pdf"}
                         </span>
                       </div>
                       <a
                         href={(() => {
-                          const url = selectedProject.fileUrl || selectedProject.file_url || "/uploads/default_abstract.pdf";
+                          const url = selectedProject.fileUrl || "/uploads/default_abstract.pdf";
                           return url.startsWith("http") ? url : `${import.meta.env.VITE_API_URL || ""}${url}`;
                         })()}
                         target="_blank"
@@ -313,14 +313,14 @@ export default function StudentDashboard() {
                             >
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                                 <span style={{ fontSize: "12px", fontWeight: 700, color: "#0F172A" }}>
-                                  {rev.facultyName || rev.faculty_name || "Faculty Mentor"}
+                                  {rev.facultyName || "Faculty Mentor"}
                                 </span>
                                 <span style={{ fontSize: "11px", fontWeight: 600, color: rev.statusChange === "APPROVED" ? "#059669" : "#2563EB" }}>
                                   {rev.statusChange}
                                 </span>
                               </div>
                               <p style={{ margin: 0, fontSize: "12px", color: "#334155", lineHeight: 1.4 }}>
-                                "{rev.feedbackText || rev.feedback_text}"
+                                "{rev.feedbackText || "No feedback provided."}"
                               </p>
                             </div>
                           ))}

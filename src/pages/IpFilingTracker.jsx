@@ -19,6 +19,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import axios from "axios";
+import { formatDate } from "../utils/formatDate";
 
 export default function IpFilingTracker() {
   const { user } = useAuth();
@@ -261,7 +262,7 @@ export default function IpFilingTracker() {
       f.ipType || f.ip_type || "",
       f.applicationNo || f.application_no || "",
       f.filingStatus || f.filing_status || "",
-      f.filingDate || f.filing_date || "",
+      f.filingDate ? formatDate(f.filingDate) : "",
       `"${(f.inventors || "").replace(/"/g, '""')}"`,
       `"${(f.notes || "").replace(/"/g, '""')}"`,
     ]);
@@ -565,7 +566,7 @@ export default function IpFilingTracker() {
                       const appNo = ip.applicationNo || ip.application_no;
                       const ipType = ip.ipType || ip.ip_type;
                       const status = ip.filingStatus || ip.filing_status;
-                      const date = ip.filingDate || ip.filing_date;
+                      const date = ip.filingDate ? formatDate(ip.filingDate) : "In Drafting";
 
                       return (
                         <tr key={ip.id} style={{ borderBottom: "1px solid #F1F5F9" }}>
@@ -603,7 +604,7 @@ export default function IpFilingTracker() {
                             {ip.inventors || student}
                           </td>
                           <td style={{ padding: "14px 16px", color: "#64748B" }}>
-                            {date || "In Drafting"}
+                            {date}
                           </td>
                           <td style={{ padding: "14px 16px" }}>{getFilingStatusBadge(status)}</td>
                           <td style={{ padding: "14px 16px", textAlign: "right" }}>
